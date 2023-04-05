@@ -1,0 +1,17 @@
+{
+  "globals": {
+    "document": true,
+    "window": true,
+  },
+  "extends": ["eslint:recommended", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": 13,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true,
+    "jquery" : true,
+    "node": true,
+    "es2022": true
+  }
+}

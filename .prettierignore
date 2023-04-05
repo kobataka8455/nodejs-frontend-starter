@@ -1,0 +1,6 @@
+# Ignore all HTML files:
+*.html
+*.ejs
+*.md
+node_modules
+dist/

@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "j69.ejs-beautify",
+    "dbaeumer.vscode-eslint",
+    "htmlhint.vscode-htmlhint",
+    "stylelint.vscode-stylelint",
+    "esbenp.prettier-vscode"
+  ]
+}
