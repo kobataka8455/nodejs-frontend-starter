@@ -27,13 +27,3 @@
   }
 }
 
-@mixin icon-clip($add:"none") {
-  @if $add == "none" {
-    content: "\F002";
-  } @else {
-    &::#{$add} {
-      content: "\F002";
-    }
-  }
-}
-

@@ -15,7 +15,7 @@ const isMinify = JSON.parse(process.env.MINIFY);
 const templatesDir = 'src/ejs/';
 
 // コンパイルされたHTMLファイルの出力先ディレクトリ
-const distDir = 'dist/';
+const distDir = 'dist/html/';
 
 // 出力先のHTMLファイルを削除
 if (process.env.NODE_ENV !== 'production') {
@@ -68,7 +68,7 @@ files.forEach((file) => {
 
   // コンパイルされたHTMLを出力する
   const distPath = file.replace(templatesDir, distDir).replace('.ejs', '.html');
-  ensureDirectoryExistence(distDir);
+  ensureDirectoryExistence(path.dirname(distPath));
   fs.writeFileSync(distPath, compiledTemplate);
   console.log(`\x1b[36;1m${file} -> ${distPath.replace('./', '')} ...\x1b[0m`);
 });

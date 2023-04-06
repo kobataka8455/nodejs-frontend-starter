@@ -1,6 +1,7 @@
 const sass = require('sass');
 const fs = require('fs');
 const glob = require('glob');
+const path = require('path');
 const { ensureDirectoryExistence } = require('./create-directory');
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
@@ -37,7 +38,7 @@ const compileAllScssFiles = () => {
   scssFiles.forEach((file) => {
     const cssFilePath = file.replace(scssDirPath, cssDirPath).replace('.scss', '.css');
 
-    ensureDirectoryExistence(cssDirPath);
+    ensureDirectoryExistence(path.dirname(cssFilePath));
     const css = compileScss(file);
     fs.writeFileSync(cssFilePath, css);
     console.log(`\x1b[36;1m${file} -> ${cssFilePath} ...\x1b[0m`);
