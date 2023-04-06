@@ -5,8 +5,10 @@ const path = require('path');
 const minify = require('html-minifier').minify;
 const jsBeautify = require('js-beautify').html;
 const jsBeautifyOption = require('../.ejsbrc.json');
-
+const { ensureDirectoryExistence } = require('./create-directory');
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
+
+// 圧縮するかどうかの判定
 const isMinify = JSON.parse(process.env.MINIFY);
 
 // EJSテンプレートファイルのディレクトリ
@@ -21,16 +23,6 @@ if (process.env.NODE_ENV !== 'production') {
     fs.unlinkSync(file);
   });
 }
-
-// 出力先のディレクトリが存在しない場合に自動的に作成する関数
-const ensureDirectoryExistence = (filePath) => {
-  const dirname = path.dirname(filePath);
-  if (fs.existsSync(dirname)) {
-    return true;
-  }
-  ensureDirectoryExistence(dirname);
-  fs.mkdirSync(dirname);
-};
 
 // テンプレートファイルをコンパイルする関数
 const compileTemplate = (templatePath, data, options) => {
@@ -76,7 +68,7 @@ files.forEach((file) => {
 
   // コンパイルされたHTMLを出力する
   const distPath = file.replace(templatesDir, distDir).replace('.ejs', '.html');
-  ensureDirectoryExistence(distPath);
+  ensureDirectoryExistence(distDir);
   fs.writeFileSync(distPath, compiledTemplate);
   console.log(`\x1b[36;1m${file} -> ${distPath.replace('./', '')} ...\x1b[0m`);
 });

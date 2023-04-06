@@ -1,0 +1,55 @@
+{%- set eotIndex = formats.indexOf('eot') -%}
+{%- set woff2Index = formats.indexOf('woff2') -%}
+{%- set woffIndex = formats.indexOf('woff') -%}
+{%- set ttfIndex = formats.indexOf('ttf') -%}
+
+@mixin font-family($relativePath: "../") {
+  @font-face {
+    font-family: {{ fontName }};
+  {%- if formats.indexOf('eot')>-1 %}
+    src: url("#{$relativePath}{{ fontPath }}{{ fontName }}.eot");
+  {%- endif %}
+    src: {% if eotIndex != -1 -%}
+      url("#{$relativePath}{{ fontPath }}{{ fontName }}.eot?{{ hash }}#iefix") format("embedded-opentype")
+  {%- set nothing = formats.splice(eotIndex, 1) -%}
+  {%- if formats.length != 0 -%},
+  {% else -%}; {% endif -%}
+  {%- endif -%}
+  {%- if woff2Index != -1 %}  url("#{$relativePath}{{ fontPath }}{{ fontName }}.woff2?{{ hash }}") format("woff2")
+  {%- set nothing = formats.splice(woff2Index, 1) -%}
+  {%- if formats.length != 0 -%},
+  {% else -%}; {% endif -%}
+  {%- endif -%}
+  {%- if woffIndex != -1 %}  url("#{$relativePath}{{ fontPath }}{{ fontName }}.woff?{{ hash }}") format("woff")
+  {%- set nothing = formats.splice(woffIndex, 1) -%}
+  {%- if formats.length != 0 -%},
+  {% else -%}; {% endif -%}
+  {%- endif -%}
+  {%- if ttfIndex != -1 %}  url("#{$relativePath}{{ fontPath }}{{ fontName }}.ttf?{{ hash }}") format("truetype");
+  {%- set nothing = formats.splice(ttfIndex, 1) -%}
+  {%- endif %}
+  }
+
+  .{{ className }} {
+    font-family: {{ fontName }}, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-style: normal;
+    line-height: 1;
+    font-weight: normal;
+  }
+}
+
+
+{% for glyph in glyphs -%}
+@mixin icon-{{ glyph.name }}($add:"none") {
+  @if $add == "none" {
+    content: "\{{ glyph.unicode[0].charCodeAt(0).toString(16).toUpperCase() }}";
+  } @else {
+    &::#{$add} {
+      content: "\{{ glyph.unicode[0].charCodeAt(0).toString(16).toUpperCase() }}";
+    }
+  }
+}
+
+{% endfor %}

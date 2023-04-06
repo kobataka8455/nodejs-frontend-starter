@@ -1,1 +1,3 @@
 @use './components/base';
+@use './icon-font/icons' as *;
+@include font-family();

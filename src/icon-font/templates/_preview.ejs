@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title><%= config.fontName %> Icons Preview</title>
+  <style>
+    <%= resetCSS %>
+    .<%= config.templateClassName %>-title{
+      font-weight: normal;
+      font-size: 3em;
+      text-align: center;
+    }
+    .<%= config.templateClassName %>-list{
+      margin: 0 auto;
+      max-width: 800px;
+      display: grid;
+      list-style: none;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    .<%= config.templateClassName %>-list__item{
+      border-radius: 0.2em;
+      background-color: #ecf0f1;
+      text-align: center;
+      padding: 2em 1rem;
+    }
+    .<%= config.templateClassName %>-list__item p{
+      margin-bottom: 0;
+    }
+    @font-face {
+      font-family: <%= config.fontName %>;
+      src:url("./icons.woff2") format("woff2"),
+        url("./icons.woff") format("woff"),
+        url("./icons.ttf") format("truetype");
+    }
+    .<%= config.templateClassName %> {
+      font-family: <%= config.fontName %>, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-style: normal;
+      line-height: 1;
+      font-weight: normal;
+      font-size: 1.5rem;
+    }
+
+    <% icons.forEach(function(icon) { %>
+    .<%= config.templateClassName %>.<%= config.templateClassName %>--<%= icon.metadata.name %>::before {
+      content: "\<%= icon.metadata.unicode[0].charCodeAt(0).toString(16).toUpperCase() %>";
+      display: block;
+      margin: auto;
+    }
+    <% }); %>
+  </style>
+</head>
+
+<body>
+  <h1 class="<%= config.templateClassName %>-title"><%= config.fontName %></h1>
+  <ul class="<%= config.templateClassName %>-list">
+    <% icons.forEach(function(icon) { %>
+    <li class="<%= config.templateClassName %>-list__item">
+      <div class="<%= config.templateClassName %> <%= config.templateClassName %>--<%= icon.metadata.name %>"></div>
+      <p><%= config.templateClassName %>--<%- icon.metadata.name %></p>
+    </li>
+    <% }); %>
+  </ul>
+</body>
+
+</html>

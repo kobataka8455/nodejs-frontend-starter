@@ -1,9 +1,10 @@
 const sass = require('sass');
 const fs = require('fs');
 const glob = require('glob');
-const path = require('path');
-
+const { ensureDirectoryExistence } = require('./create-directory');
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
+
+// 圧縮するかどうかの判定
 const isMinify = JSON.parse(process.env.MINIFY);
 
 // コンパイルするSCSSファイルが格納されているディレクトリのパス
@@ -18,16 +19,6 @@ if (process.env.NODE_ENV !== 'production') {
     fs.unlinkSync(file);
   });
 }
-
-// 出力先のディレクトリが存在しない場合に自動的に作成する関数
-const ensureDirectoryExistence = (filePath) => {
-  const dirname = path.dirname(filePath);
-  if (fs.existsSync(dirname)) {
-    return true;
-  }
-  ensureDirectoryExistence(dirname);
-  fs.mkdirSync(dirname);
-};
 
 // SCSSファイルをコンパイルする関数
 const compileScss = (scssFilePath) => {
@@ -46,7 +37,7 @@ const compileAllScssFiles = () => {
   scssFiles.forEach((file) => {
     const cssFilePath = file.replace(scssDirPath, cssDirPath).replace('.scss', '.css');
 
-    ensureDirectoryExistence(cssFilePath);
+    ensureDirectoryExistence(cssDirPath);
     const css = compileScss(file);
     fs.writeFileSync(cssFilePath, css);
     console.log(`\x1b[36;1m${file} -> ${cssFilePath} ...\x1b[0m`);
