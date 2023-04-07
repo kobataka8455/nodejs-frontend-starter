@@ -1,3 +1,72 @@
+/**
+* base
+*/
+
+html {
+  overflow-y: scroll;
+  font-size: 62.5%;
+}
+
 body {
+  color: #333;
+  font-size: 1.6rem;
   min-width: 990px;
+  font-family: Avenir, -apple-system, Arial, 'Helvetica Neue', Roboto, 'Segoe UI', BlinkMacSystemFont, sans-serif;
+}
+
+img {
+  max-width: 100%;
+  vertical-align: bottom;
+}
+
+picture {
+  display: block;
+}
+
+ul,
+li {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+dl,
+dt,
+dd {
+  padding: 0;
+  margin: 0;
+}
+
+p,
+figure {
+  padding: 0;
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+button {
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
 }

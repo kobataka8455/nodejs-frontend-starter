@@ -23,9 +23,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 // SCSSファイルをコンパイルする関数
 const compileScss = (scssFilePath) => {
-  // 圧縮したCSSをresultに格納
+  // CSSソースをresultに格納
   const result = sass.compile(scssFilePath, {
     style: isMinify ? 'compressed' : 'expanded',
+    loadPaths: ['./src/scss'],
   });
 
   return result.css.toString();

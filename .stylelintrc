@@ -29,6 +29,7 @@
     }],
     "declaration-colon-newline-after": null,
     "rule-empty-line-before": "always",
-    "declaration-property-value-no-unknown": true
+    "declaration-property-value-no-unknown": true,
+    "order/properties-order": []
   }
 }

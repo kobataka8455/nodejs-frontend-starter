@@ -1,4 +1,5 @@
 const bs = require('browser-sync').create();
+const chokidar = require('chokidar');
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
@@ -98,4 +99,6 @@ server.listen(bsPort, () => {
 });
 
 // ファイルの変更を検知してブラウザをリロードする
-bs.watch(`${distFolder}/**/*`).on('change', bs.reload);
+chokidar.watch(`${distFolder}/**/*`).on('all', () => {
+  bs.reload();
+});

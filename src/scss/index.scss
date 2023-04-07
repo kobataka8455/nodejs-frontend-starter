@@ -1,3 +1,6 @@
-@use './components/base';
-@use './icon-font/icons' as *;
-@include font-family();
+@use '../../node_modules/normalize.css/normalize.css';
+@use 'components/base';
+
+// icon-fotnを使用しない場合は以下2行は削除
+@use 'icon-font/icons' as *;
+@include font-family;
