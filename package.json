@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build:js": "rollup -c ./npm-scripts/rollup.config.js --bundleConfigAsCjs",
     "build:icon": "node ./npm-scripts/compile-icon-font.js",
+    "build:image": "node ./npm-scripts/compile-images.js",
+    "build:js": "rollup -c ./npm-scripts/compile-js.js --bundleConfigAsCjs",
     "build:ejs": "node ./npm-scripts/compile-ejs.js",
     "build:scss": "node ./npm-scripts/compile-scss.js",
-    "build:image": "node ./npm-scripts/compile-images.js",
     "build": "cross-env NODE_ENV=production run-s delete build:*",
     "delete": "node ./npm-scripts/delete.js",
     "serve": "node ./npm-scripts/server.js",

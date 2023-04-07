@@ -2,25 +2,76 @@ const bs = require('browser-sync').create();
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
-const distFolder = `${process.cwd()}/dist/`;
+const distFolder = `${process.cwd()}/dist`;
 
 const port = 8282;
 let bsPort = 3000;
 
+// コンテンツタイプの取得
+const getContentType = (filePath) => {
+  const extname = path.extname(filePath);
+  switch (extname) {
+    case '.html':
+      return 'text/html';
+    case '.js':
+      return 'text/javascript';
+    case '.css':
+      return 'text/css';
+    case '.json':
+      return 'application/json';
+    case '.png':
+      return 'image/png';
+    case '.jpg':
+      return 'image/jpg';
+    case '.wav':
+      return 'audio/wav';
+    default:
+      return 'text/plain';
+  }
+};
 // サーバーの設定
 const server = http.createServer((req, res) => {
-  // リクエストされたファイルのパスを作成
-  const filePath = path.join(distFolder, req.url === '/' ? 'index.html' : req.url);
+  const filePath = path.join(distFolder, req.url);
 
-  // ファイルが存在する場合は返す
   fs.stat(filePath, (err, stats) => {
-    if (!err && stats.isFile()) {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/html');
-      fs.createReadStream(filePath).pipe(res);
+    if (err) {
+      if (err.code === 'ENOENT') {
+        res.statusCode = 404;
+        res.end(`File ${req.url} not found!`);
+      } else {
+        res.statusCode = 500;
+        res.end(`Internal server error: ${err.code}`);
+      }
     } else {
-      res.statusCode = 404;
-      res.end('File not found');
+      if (stats.isDirectory()) {
+        fs.readdir(filePath, (err, files) => {
+          if (err) {
+            res.statusCode = 500;
+            res.end(`Internal server error: ${err.code}`);
+          } else {
+            const url = req.url.endsWith('/') ? req.url : `${req.url}/`;
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.write(`<h1>Folder: ${req.url}</h1>`);
+            res.write('<ul>');
+            files.forEach((file) => {
+              res.write(`<li><a href="${url}${file}">${file}</a></li>`);
+            });
+            res.write('</ul>');
+            res.end();
+          }
+        });
+      } else {
+        const stream = fs.createReadStream(filePath);
+        stream.on('open', () => {
+          res.setHeader('Content-Type', getContentType(filePath));
+          stream.pipe(res);
+        });
+        stream.on('error', (err) => {
+          res.setHeader('Content-Type', 'text/html');
+          res.statusCode = 500;
+          res.end(`Internal server error: ${err.code}`);
+        });
+      }
     }
   });
 });
