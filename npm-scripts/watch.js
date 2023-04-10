@@ -1,6 +1,6 @@
-const chokidar = require('chokidar');
-const { exec } = require('child_process');
-const fs = require('fs');
+import chokidar from 'chokidar';
+import { exec } from 'child_process';
+import fs from 'fs/promises';
 
 // 監視対象のフォルダとファイルを指定
 const targets = 'src/**/*';
@@ -11,7 +11,7 @@ const watcher = chokidar.watch(targets, {
   persistent: true,
 });
 
-const remove = (type, path) => {
+const remove = async (type, path) => {
   let targetPath = path.replace('src', 'dist');
 
   // distの拡張子に変換
@@ -22,15 +22,18 @@ const remove = (type, path) => {
   }
 
   // distに対象のファイル/フォルダがあれば削除
-  if (fs.existsSync(targetPath)) {
-    const stats = fs.statSync(targetPath);
-    if (stats.isDirectory()) {
-      fs.promises.rm(targetPath, { recursive: true, force: true });
-    } else {
-      fs.unlinkSync(targetPath);
-    }
+  if (await fs.stat(targetPath).then((stats) => stats.isDirectory())) {
+    await fs.rm(targetPath, { recursive: true, force: true });
+  } else if (
+    await fs
+      .access(targetPath)
+      .then(() => true)
+      .catch(() => false)
+  ) {
+    await fs.unlink(targetPath);
   }
 };
+
 const action = (type) => {
   exec(`npm run build:${type}`, (err) => {
     if (err) {
@@ -54,7 +57,7 @@ const main = (event, path) => {
 
   console.log(`${color}${path} has been ${event}\x1b[0m`);
   if (event === 'unlink' || event === 'unlinkDir') {
-    remove(type, path);
+    remove(type, path).catch(console.error);
   } else {
     action(type);
   }

@@ -1,10 +1,10 @@
-const bs = require('browser-sync').create();
-const chokidar = require('chokidar');
-const http = require('http');
-const path = require('path');
-const fs = require('fs');
-const distFolder = `${process.cwd()}/dist`;
+import bs from 'browser-sync';
+import chokidar from 'chokidar';
+import http from 'http';
+import path from 'path';
+import fs from 'fs';
 
+const distFolder = `${process.cwd()}/dist`;
 const port = 8282;
 let bsPort = 3000;
 
@@ -30,6 +30,7 @@ const getContentType = (filePath) => {
       return 'text/plain';
   }
 };
+
 // サーバーの設定
 const server = http.createServer((req, res) => {
   const filePath = path.join(distFolder, req.url);
@@ -90,7 +91,7 @@ server.on('error', (err) => {
 server.listen(bsPort, () => {
   console.log(`Server running at http://localhost:${bsPort}`);
   // braowser-syncの起動
-  bs.init({
+  bs.create().init({
     proxy: `http://localhost:${bsPort}`,
     port: port,
     open: true,
@@ -100,5 +101,5 @@ server.listen(bsPort, () => {
 
 // ファイルの変更を検知してブラウザをリロードする
 chokidar.watch(`${distFolder}/**/*`).on('all', () => {
-  bs.reload();
+  bs.reload;
 });

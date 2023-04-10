@@ -1,8 +1,10 @@
-const terser = require('@rollup/plugin-terser');
-const glob = require('glob');
-const fs = require('fs');
+import { terser } from '@rollup/plugin-terser';
+import glob from 'glob';
+import fs from 'fs';
 
-require('dotenv').config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
+
 const isMinify = JSON.parse(process.env.MINIFY);
 
 const setting = (name) => {

@@ -1,9 +1,10 @@
-const sass = require('sass');
-const fs = require('fs');
-const glob = require('glob');
-const path = require('path');
-const { ensureDirectoryExistence } = require('./create-directory');
-require('dotenv').config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
+import sass from 'sass';
+import fs from 'fs';
+import glob from 'glob';
+import path from 'path';
+import { ensureDirectoryExistence } from './create-directory.js';
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
 // 圧縮するかどうかの判定
 const isMinify = JSON.parse(process.env.MINIFY);
@@ -25,7 +26,7 @@ if (process.env.NODE_ENV !== 'production') {
 const compileScss = (scssFilePath) => {
   // CSSソースをresultに格納
   const result = sass.compile(scssFilePath, {
-    style: isMinify ? 'compressed' : 'expanded',
+    outputStyle: isMinify ? 'compressed' : 'expanded',
     loadPaths: ['./src/scss'],
   });
 

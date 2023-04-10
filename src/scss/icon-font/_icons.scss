@@ -1,29 +1,23 @@
+
 @mixin font-family($relativePath: "../") {
   @font-face {
-    font-family: icons;
-    src:   url("#{$relativePath}icon-font/icons.woff2?") format("woff2"),
-    url("#{$relativePath}icon-font/icons.woff?") format("woff"),
-    url("#{$relativePath}icon-font/icons.ttf?") format("truetype");
-  }
-
-  .icons {
-    font-family: icons, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-style: normal;
-    line-height: 1;
-    font-weight: normal;
+    font-family: "icons";
+    src: url('#{$relativePath}icons.eot?t=1681140337193'); /* IE9*/
+    src: url('#{$relativePath}icons.eot?t=1681140337193#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('#{$relativePath}icons.woff2?t=1681140337193') format('woff2'),
+    url('#{$relativePath}icons.woff?t=1681140337193') format('woff'),
+    url('#{$relativePath}icons.ttf?t=1681140337193') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
   }
 }
 
-
-@mixin icon-check($add:"none") {
-  @if $add == "none" {
-    content: "\F001";
-  } @else {
-    &::#{$add} {
-      content: "\F001";
-    }
-  }
+[class^="icons---"], [class*=" icons---"] {
+  font-family: 'icons';
+  font-size: 16px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+.icons--check:before { content: "\ea01"; }
+
+$icons--check: "\ea01";

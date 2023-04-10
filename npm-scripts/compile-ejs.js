@@ -1,12 +1,14 @@
-const ejs = require('ejs');
-const fs = require('fs');
-const glob = require('glob');
-const path = require('path');
-const minify = require('html-minifier').minify;
-const jsBeautify = require('js-beautify').html;
-const jsBeautifyOption = require('../.ejsbrc.json');
-const { ensureDirectoryExistence } = require('./create-directory');
-require('dotenv').config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
+import path from 'path';
+import fs from 'fs';
+import ejs from 'ejs';
+import glob from 'glob';
+import { minify } from 'html-minifier';
+import jsBeautify from 'js-beautify';
+import { ensureDirectoryExistence } from './create-directory.js';
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
+
+const jsBeautifyOption = JSON.parse(fs.readFileSync('.ejsbrc.json', 'utf8'));
 
 // 圧縮するかどうかの判定
 const isMinify = JSON.parse(process.env.MINIFY);
@@ -30,7 +32,7 @@ const compileTemplate = (templatePath, data, options) => {
   const compiledTemplate = ejs.render(template, data, options);
 
   // スペースやインデント起因の表示バグ等を回避のためフォーマットする
-  const formatedTemplate = jsBeautify(compiledTemplate, jsBeautifyOption);
+  const formatedTemplate = jsBeautify.html(compiledTemplate, jsBeautifyOption);
 
   // minify判定
   if (isMinify) {
