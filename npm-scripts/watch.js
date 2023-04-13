@@ -1,6 +1,11 @@
 import fs from 'fs/promises';
 import chokidar from 'chokidar';
 import { exec } from 'child_process';
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
+
+// envから値を取得
+const dist = process.env.DIST;
 
 // 監視対象のフォルダとファイルを指定
 const targets = 'src/**/*';
@@ -12,7 +17,7 @@ const watcher = chokidar.watch(targets, {
 });
 
 const remove = async (type, path) => {
-  let targetPath = path.replace('src', 'dist');
+  let targetPath = path.replace('src', dist);
 
   // distの拡張子に変換
   if (type === 'scss') {

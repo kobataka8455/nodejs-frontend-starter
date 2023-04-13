@@ -6,18 +6,30 @@ import { ensureDirectoryExistence } from './create-directory.js';
 import dotenv from 'dotenv';
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
-// 圧縮するかどうかの判定
+// envから値を取得
 const isMinify = JSON.parse(process.env.MINIFY);
+const dist = process.env.DIST;
 
-// コンパイルするSCSSファイルが格納されているディレクトリのパス
-const scssDirPath = 'src/scss';
-
-// コンパイル後のCSSファイルを出力するディレクトリのパス
-const cssDirPath = 'dist/css';
+// 設定
+const config = {
+  dir: {
+    scss: 'src/scss/', // SCSSファイルのディレクトリ
+    dist: `${dist}/css/`,
+  },
+  isHTMLDir: true, // dist/配下にHTMLフォルダを作成するかどうか
+  ejsOptions: {
+    root: `${path.resolve(process.cwd(), 'src/ejs/')}`,
+  },
+  ejsData: {
+    path: {
+      comp: '/components', // コンポーネントのパス（src/ejs/をrootとしたルート絶対パス）
+    },
+  },
+};
 
 // 出力先のCSSファイルを削除
 if (process.env.NODE_ENV !== 'production') {
-  glob.sync(`${cssDirPath}/**/*.css`).forEach((file) => {
+  glob.sync(`${config.dir.dist}/**/*.css`).forEach((file) => {
     fs.unlinkSync(file);
   });
 }
@@ -27,7 +39,7 @@ const compileScss = (scssFilePath) => {
   // CSSソースをresultに格納
   const result = sass.compile(scssFilePath, {
     style: isMinify ? 'compressed' : 'expanded',
-    loadPaths: ['./src/scss'],
+    loadPaths: ['./src/scss/'],
   });
 
   return result.css.toString();
@@ -35,10 +47,10 @@ const compileScss = (scssFilePath) => {
 
 // SCSSファイルをコンパイルしてCSSファイルに出力する関数
 const compileAllScssFiles = () => {
-  const scssFiles = glob.sync(`${scssDirPath}/**/!(_)*.scss`);
+  const scssFiles = glob.sync(`${config.dir.scss}/**/!(_)*.scss`);
 
   scssFiles.forEach((file) => {
-    const cssFilePath = file.replace(scssDirPath, cssDirPath).replace('.scss', '.css');
+    const cssFilePath = file.replace(config.dir.scss, config.dir.dist).replace('.scss', '.css');
 
     ensureDirectoryExistence(path.dirname(cssFilePath));
     const css = compileScss(file);

@@ -4,37 +4,49 @@ import glob from 'glob';
 import imagemin from 'imagemin';
 import imageminUpng from 'imagemin-upng';
 import imageminSvgo from 'imagemin-svgo';
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
-const srcDir = path.resolve(process.cwd(), 'src', 'images');
-const distDir = path.resolve(process.cwd(), 'dist', 'images');
-const PNG_QUALITY = 256; // 0 or 256 = lossless, 1-255 = lossy
+// envから値を取得
+const dist = process.env.DIST;
 
-async function compressImages() {
-  await fs.promises.rm(distDir, { recursive: true, force: true });
-  const pngFiles = glob.sync(`${srcDir}/**/*.png`);
-  const svgFiles = glob.sync(`${srcDir}/**/*.svg`);
+// 設定
+const config = {
+  dir: {
+    src: `src/images/`, // 画像ファイルのディレクトリ
+    dist: `${dist}/images/`, // 画像ファイルのディレクトリ
+  },
+  quality: {
+    png: 256, // 0 or 256 = lossless, 1-255 = lossy
+  },
+};
+
+const compressImages = async () => {
+  await fs.promises.rm(config.dir.dist, { recursive: true, force: true });
+  const pngFiles = glob.sync(`${config.dir.src}/**/*.png`);
+  const svgFiles = glob.sync(`${config.dir.src}/**/*.svg`);
 
   const allFiles = [...pngFiles, ...svgFiles];
 
   for (const file of allFiles) {
-    const fileName = file.replace(srcDir, '');
+    const fileName = file.replace(config.dir.src, '');
     const buffer = await imagemin([file], {
-      destination: path.join(distDir, path.dirname(fileName)),
+      destination: path.join(config.dir.dist, path.dirname(fileName)),
       plugins: [
         imageminUpng({
-          quality: PNG_QUALITY,
+          quality: config.quality.png,
         }),
         imageminSvgo(),
       ],
     });
-    console.log(`\x1b[36;1mminify ${file.replace(srcDir, 'src')} -> ${buffer[0].destinationPath.replace(distDir, 'dist')}\x1b[0m`);
+    console.log(`\x1b[36;1mminify ${file} -> ${buffer[0].destinationPath}\x1b[0m`);
     fs.writeFileSync(buffer[0].destinationPath, buffer[0].data);
   }
-}
+};
 
 // src/imagesフォルダの存在していればcompressImages()を実行
 try {
-  fs.accessSync(srcDir);
+  fs.accessSync(config.dir.src);
   compressImages();
 } catch (error) {
   console.log('\x1b[31;1mNo images directory\x1b[0m');

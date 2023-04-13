@@ -8,20 +8,35 @@ import { ensureDirectoryExistence } from './create-directory.js';
 import dotenv from 'dotenv';
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
-const jsBeautifyOption = JSON.parse(fs.readFileSync('.ejsbrc.json', 'utf8'));
-
-// 圧縮するかどうかの判定
+// envから値を取得
 const isMinify = JSON.parse(process.env.MINIFY);
+const dist = process.env.DIST;
 
-// EJSテンプレートファイルのディレクトリ
-const templatesDir = 'src/ejs/';
-
-// コンパイルされたHTMLファイルの出力先ディレクトリ
-const distDir = 'dist/html/';
+// 設定
+const config = {
+  dir: {
+    ejs: 'src/ejs/', // EJSテンプレートファイルのディレクトリ
+  },
+  isHTMLDir: true, // dist/配下にHTMLフォルダを作成するかどうか
+  ejsOptions: {
+    root: `${path.resolve(process.cwd(), 'src/ejs/')}`,
+  },
+  ejsData: {
+    path: {
+      comp: '/components', // コンポーネントのパス（src/ejs/をrootとしたルート絶対パス）
+    },
+    func: {
+      replacePath: (path) => {
+        // ここだけ確認
+        return config.isHTMLDir ? path.replace(/\//i, '') : path.replace(/\//i, '../');
+      },
+    },
+  },
+};
 
 // 出力先のHTMLファイルを削除
 if (process.env.NODE_ENV !== 'production') {
-  glob.sync(`${distDir}/**/*.html`).forEach((file) => {
+  glob.sync(`${dist}/**/*.html`).forEach((file) => {
     fs.unlinkSync(file);
   });
 }
@@ -32,6 +47,7 @@ const compileTemplate = (templatePath, data, options) => {
   const compiledTemplate = ejs.render(template, data, options);
 
   // スペースやインデント起因の表示バグ等を回避のためフォーマットする
+  const jsBeautifyOption = JSON.parse(fs.readFileSync('.ejsbrc.json', 'utf8'));
   const formatedTemplate = jsBeautify.html(compiledTemplate, jsBeautifyOption);
 
   // minify判定
@@ -51,25 +67,14 @@ const compileTemplate = (templatePath, data, options) => {
 };
 
 // ディレクトリ内のすべてのEJSファイルを取得する
-const files = glob.sync(`${templatesDir}/**/!(_)*.ejs`);
+const files = glob.sync(`${config.dir.ejs}/**/!(_)*.ejs`);
 files.forEach((file) => {
-  // コンパイルに必要なデータを用意する
-  const config = {
-    root: `${path.resolve(process.cwd(), './', templatesDir)}/`,
-  };
-
-  // コンパイルに必要なデータを用意する
-  const data = {
-    path: {
-      comp: `/components`,
-    },
-  };
-
   // テンプレートをコンパイルする
-  const compiledTemplate = compileTemplate(file, data, config);
+  const compiledTemplate = compileTemplate(file, config.ejsData, config.ejsOptions);
 
   // コンパイルされたHTMLを出力する
-  const distPath = file.replace(templatesDir, distDir).replace('.ejs', '.html');
+  const HTMLFolder = config.isHTMLDir ? `${dist}/html/` : `${dist}/`;
+  const distPath = file.replace(config.dir.ejs, HTMLFolder).replace('.ejs', '.html');
   ensureDirectoryExistence(path.dirname(distPath));
   fs.writeFileSync(distPath, compiledTemplate);
   console.log(`\x1b[36;1m${file} -> ${distPath.replace('./', '')} ...\x1b[0m`);

@@ -11,7 +11,13 @@ import nunjucks from 'nunjucks';
 import crypto from 'crypto';
 import prettier from 'prettier';
 import { ensureDirectoryExistence } from './create-directory.js';
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
+// envから値を取得
+const dist = process.env.DIST;
+
+// ファイル読み込み
 const normalizeCss = fs.readFileSync('./node_modules/normalize.css/normalize.css').toString();
 const prettierConfig = JSON.parse(fs.readFileSync('./.prettierrc', 'utf8'));
 
@@ -23,17 +29,16 @@ const config = {
   startUnicode: 0xf000, // nullにした場合は0xf000から始まる
   formats: ['ttf', 'eot', 'woff', 'woff2'], // 生成するフォントファイルの形式['ttf', 'eot', 'woff', 'woff2']
   template: {
-    scss: './src/icon-font/templates/_icon-scss.njk',
-    html: './src/icon-font/templates/_icon-html.njk',
+    scss: `src/icon-font/templates/_icon-scss.njk`,
+    html: `src/icon-font/templates/_icon-html.njk`,
   },
   output: {
-    scss: './src/scss/icon-font/_icon-font.scss',
-    html: './dist/icon-font/index.html',
+    scss: `src/scss/icon-font/_icon-font.scss`,
+    html: `${dist}/icon-font/index.html`,
   },
   dir: {
-    svg: './src/icon-font/svg',
-    distHtml: './dist/icon-font/',
-    distFont: './dist/icon-font/',
+    svg: `src/icon-font/svg`,
+    distFont: `${dist}/icon-font/`,
   },
   isHTML: process.env.NODE_ENV !== 'production', // HTMLを生成するかどうか
   prependUnicode: false, // svgファイル名の先頭にUnicodeを付与するかどうか
@@ -41,7 +46,7 @@ const config = {
 };
 
 // SVGファイルのパスを取得する関数
-function getSvgFiles() {
+const getSvgFiles = () => {
   const files = glob.sync(`${config.dir.svg}/**/*.svg`);
   return _.sortBy(files, (file) => {
     // ファイル名の先頭にUnicodeが付いている場合はUnicodeを返す
@@ -52,7 +57,7 @@ function getSvgFiles() {
     // Unicodeが付いていない場合はファイル名をそのまま返す
     return file;
   });
-}
+};
 
 // Webフォントを生成する関数
 const generateWebfont = async () => {

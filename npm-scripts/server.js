@@ -3,10 +3,17 @@ import chokidar from 'chokidar';
 import http from 'http';
 import path from 'path';
 import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
-const distFolder = `${process.cwd()}/dist`;
-const port = 8282;
-let bsPort = 3000;
+// envから値を取得
+const dist = process.env.DIST;
+
+// 設定
+const config = {
+  port: 8282,
+  bsPort: 3000,
+};
 
 // コンテンツタイプの取得
 const getContentType = (filePath) => {
@@ -33,7 +40,7 @@ const getContentType = (filePath) => {
 
 // サーバーの設定
 const server = http.createServer((req, res) => {
-  const filePath = path.join(distFolder, req.url);
+  const filePath = path.join(dist, req.url);
 
   fs.stat(filePath, (err, stats) => {
     if (err) {
@@ -81,25 +88,25 @@ const server = http.createServer((req, res) => {
 // ポートが既に使われている場合は、他のポートを自動で設定
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.log(`Port ${bsPort} is already in use. Trying another port...`);
-    bsPort++;
-    server.listen(bsPort);
+    console.log(`Port ${config.bsPort} is already in use. Trying another port...`);
+    config.bsPort++;
+    server.listen(config.bsPort);
   }
 });
 
 // サーバーの起動
-server.listen(bsPort, () => {
-  console.log(`Server running at http://localhost:${bsPort}`);
+server.listen(config.bsPort, () => {
+  console.log(`Server running at http://localhost:${config.bsPort}`);
   // braowser-syncの起動
   bs.create().init({
-    proxy: `http://localhost:${bsPort}`,
-    port: port,
+    proxy: `http://localhost:${config.bsPort}`,
+    port: config.port,
     open: true,
     ui: false,
   });
 });
 
 // ファイルの変更を検知してブラウザをリロードする
-chokidar.watch(`${distFolder}/**/*`).on('all', () => {
+chokidar.watch(`${dist}/**/*`).on('all', () => {
   bs.reload;
 });
