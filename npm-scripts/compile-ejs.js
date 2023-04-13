@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
-import ejs from 'ejs';
 import glob from 'glob';
+import ejs from 'ejs';
 import { minify } from 'html-minifier';
 import jsBeautify from 'js-beautify';
 import { ensureDirectoryExistence } from './create-directory.js';

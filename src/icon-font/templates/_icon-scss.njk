@@ -1,0 +1,53 @@
+{%- set ISeot = formats.indexOf('eot') > -1 -%}
+{%- set ISwoff2 = formats.indexOf('woff2') > -1 -%}
+{%- set ISwoff = formats.indexOf('woff') > -1 -%}
+{%- set ISttf = formats.indexOf('ttf') > -1 -%}
+{%- set count = formats.length -%}
+{%- if hash -%}
+{%- set hash = '?' + hash -%}
+{%- else -%}
+{%- set hash = '' -%}
+{%- endif -%}
+
+@mixin font-face {
+  @font-face {
+    font-family: "{{ fontName }}", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+  {%- if ISeot %}
+    src: url("{{ fontPath }}{{ fontName }}.eot");
+  {%- endif %}
+    src: {% if ISeot -%}
+      url("{{ fontPath }}{{ fontName }}.eot{{ hash }}#iefix") format("embedded-opentype")
+  {%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
+  {%- endif -%}
+  {%- if ISwoff2 %}  url("{{ fontPath }}{{ fontName }}.woff2{{ hash }}") format("woff2")
+  {%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
+  {%- endif -%}
+  {%- if ISwoff %}  url("{{ fontPath }}{{ fontName }}.woff{{ hash }}") format("woff")
+  {%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
+  {%- endif -%}
+  {%- if ISttf %}  url("{{ fontPath }}{{ fontName }}.ttf{{ hash }}") format("truetype")
+  {%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
+  {%- endif -%}
+  }
+
+  [class*="{{ className }}--"], [class^="{{ className }}"] {
+    font-family: "{{ fontName }}";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-style: normal;
+  }
+}
+
+{% for glyph in glyphs -%}
+@mixin {{ className }}--{{ glyph.name }} ($add: "none") {
+  @if $add == "none" {
+    content: "\{{ glyph.unicode[0].charCodeAt(0).toString(16) }}";
+  }
+  @else {
+    &::#{$add} { content: "\{{ glyph.unicode[0].charCodeAt(0).toString(16) }}"; }
+  }
+}
+
+{% endfor %}

@@ -2,5 +2,5 @@
 @use 'components/base';
 
 // icon-fotnを使用しない場合は以下2行は削除
-@use 'icon-font/icons' as *;
-@include font-family;
+@use 'icon-font/icon-font' as *;
+@include font-face;

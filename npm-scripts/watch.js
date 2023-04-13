@@ -1,6 +1,6 @@
+import fs from 'fs/promises';
 import chokidar from 'chokidar';
 import { exec } from 'child_process';
-import fs from 'fs/promises';
 
 // 監視対象のフォルダとファイルを指定
 const targets = 'src/**/*';

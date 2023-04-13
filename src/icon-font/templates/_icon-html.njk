@@ -1,0 +1,200 @@
+{%- set ISeot = formats.indexOf('eot') > -1 -%}
+{%- set ISwoff2 = formats.indexOf('woff2') > -1 -%}
+{%- set ISwoff = formats.indexOf('woff') > -1 -%}
+{%- set ISttf = formats.indexOf('ttf') > -1 -%}
+{%- set count = formats.length -%}
+{%- if hash -%}
+{%- set hash = '?' + hash -%}
+{%- else -%}
+{%- set hash = '' -%}
+{%- endif -%}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ fontName }} preview</title>
+  <style>
+  {{ resetCSS }}
+@font-face {
+  font-family: "{{ fontName }}";
+  font-weight: normal;
+  font-style: normal;
+{%- if ISeot %}
+  src: url("{{ fontName }}.eot");
+{%- endif %}
+  src: {% if ISeot -%}
+    url("{{ fontName }}.eot{{ hash }}#iefix") format("embedded-opentype")
+{%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
+{%- endif -%}
+{%- if ISwoff2 %}  url("{{ fontName }}.woff2{{ hash }}") format("woff2")
+{%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
+{%- endif -%}
+{%- if ISwoff %}  url("{{ fontName }}.woff{{ hash }}") format("woff")
+{%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
+{%- endif -%}
+{%- if ISttf %}  url("{{ fontName }}.ttf{{ hash }}") format("truetype")
+{%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
+{%- endif -%}
+}
+[class^="{{ className }}--"], [class*=" {{ className }}"] {
+  font-family: "{{ fontName }}";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-style: normal;
+}
+{% for glyph in glyphs -%}
+.{{ className }}--{{ glyph.name }}::before {content: "\{{ glyph.unicode[0].charCodeAt(0).toString(16) }}";}
+{% endfor %}
+
+html,
+body {
+  background-color: #fff;
+}
+h1 {
+  font-weight: normal;
+  font-size: 3em;
+  text-align: center;
+}
+ul {
+  list-style: none;
+  margin: 0 auto;
+  max-width: 800px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+li {
+  position: relative;
+  border-radius: 0.2em;
+  padding: 1em 0.8em;
+  margin: 0.5em;
+  background-color: #ecf0f1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.name {
+  line-height: 1.42;
+  margin: 0;
+  position: relative;
+}
+.name::after {
+  opacity: 0;
+  visibility: hidden;
+  content: "Copied!";
+  position: absolute;
+  left: -0.8em;
+  right: -0.8em;
+  top: 0;
+  bottom: 100%;
+  padding: 16px 0;
+  background: #fff;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .2s, visibility .2s, bottom .2s;
+}
+.button {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  border-radius: 9999px;
+  outline: none;
+  border: none;
+  background: rgb(44, 62, 80, 0.1);
+  font-size: 12px;
+  cursor: pointer;
+  transition: opacity .1s;
+  padding: 6px;
+}
+.button:hover {
+  opacity: 0.8;
+}
+.button.is-copied {
+  background: rgb(77, 252, 0, 0.1);
+}
+
+.button.is-copied ~ .name::after {
+  opacity: 1;
+  visibility: visible;
+  bottom: 0;
+}
+
+.icon {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #838c96;
+  border-radius: 2px;
+}
+
+.icon::after,
+.icon::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  border-radius: 2px;
+  width: 6px;
+  left: 2px;
+}
+
+.icon::before {
+  border: 2px solid #838c96;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  top: -2px;
+  height: 6px;
+}
+
+.icon::after {
+  height: 1px;
+  background: #838c96;
+  box-shadow: 0 -2px 0 0 #838c96;
+  bottom: 2px;
+}
+.{{ className }} {
+  font-size: 24px;
+}
+</style>
+</head>
+<body>
+  <h1>{{ fontName }}</h1>
+  <ul>
+  {% for glyph in glyphs %}
+    <li>
+      <button class="button" data-copyname="{{ glyph.name }}">
+        <span class="icon"></span>
+      </button>
+      <p class="{{ className }} {{ className }}--{{ glyph.name }}"></p>
+      <p class="name">{{ glyph.name }}</p>
+    </li>
+  {% endfor %}
+  </ul>
+
+  <script>
+    const buttons = document.querySelectorAll(".button");
+    buttons.forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const button = e.target.closest(".button");
+        const txt = button.dataset.copyname;
+        copyTxt(button, txt);
+      });
+    });
+
+    const copyTxt = (button, txt) => {
+      const defaultTxt = button.innerText;
+      navigator.clipboard.writeText(txt).then(function() {
+        button.classList.add('is-copied');
+      }).catch(function(error) {
+        alert((error && error.message) || 'コピーに失敗しました')
+      })
+      setTimeout(() => {
+        button.classList.remove('is-copied');
+      }, 1500);
+    };
+  </script>
+</body>
+</html>

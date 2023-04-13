@@ -1,7 +1,7 @@
-import sass from 'sass';
+import path from 'path';
 import fs from 'fs';
 import glob from 'glob';
-import path from 'path';
+import sass from 'sass';
 import { ensureDirectoryExistence } from './create-directory.js';
 import dotenv from 'dotenv';
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
@@ -26,7 +26,7 @@ if (process.env.NODE_ENV !== 'production') {
 const compileScss = (scssFilePath) => {
   // CSSソースをresultに格納
   const result = sass.compile(scssFilePath, {
-    outputStyle: isMinify ? 'compressed' : 'expanded',
+    style: isMinify ? 'compressed' : 'expanded',
     loadPaths: ['./src/scss'],
   });
 

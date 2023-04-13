@@ -1,7 +1,6 @@
-import { terser } from '@rollup/plugin-terser';
-import glob from 'glob';
 import fs from 'fs';
-
+import glob from 'glob';
+import terser from '@rollup/plugin-terser';
 import dotenv from 'dotenv';
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 

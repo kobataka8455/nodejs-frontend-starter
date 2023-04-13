@@ -1,9 +1,9 @@
 import path from 'path';
 import fs from 'fs';
+import glob from 'glob';
 import imagemin from 'imagemin';
 import imageminUpng from 'imagemin-upng';
 import imageminSvgo from 'imagemin-svgo';
-import glob from 'glob';
 
 const srcDir = path.resolve(process.cwd(), 'src', 'images');
 const distDir = path.resolve(process.cwd(), 'dist', 'images');

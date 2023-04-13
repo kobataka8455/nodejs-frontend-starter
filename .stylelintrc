@@ -18,6 +18,7 @@
     }
   ],
   "rules": {
+    "font-family-name-quotes": "always-unless-keyword",
     "scss/at-mixin-pattern": null,
     "selector-class-pattern": ".*",
     "scss/comment-no-empty": null,

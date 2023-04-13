@@ -1,0 +1,27 @@
+@mixin font-face {
+  @font-face {
+    font-family: 'my-icon', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    src: url('../icon-font/my-icon.eot');
+    src: url('../icon-font/my-icon.eot#iefix') format('embedded-opentype'), url('../icon-font/my-icon.woff2') format('woff2'), url('../icon-font/my-icon.woff') format('woff'), url('../icon-font/my-icon.ttf') format('truetype');
+  }
+
+  [class*='my-icon--'],
+  [class^='my-icon'] {
+    font-family: 'my-icon';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-style: normal;
+  }
+}
+
+@mixin my-icon--check($add: 'none') {
+  @if $add == 'none' {
+    content: '\f000';
+  } @else {
+    &::#{$add} {
+      content: '\f000';
+    }
+  }
+}
