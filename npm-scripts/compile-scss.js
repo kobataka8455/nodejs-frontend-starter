@@ -16,7 +16,6 @@ const config = {
     scss: 'src/scss/', // SCSSファイルのディレクトリ
     dist: `${dist}/css/`,
   },
-  isHTMLDir: true, // dist/配下にHTMLフォルダを作成するかどうか
   ejsOptions: {
     root: `${path.resolve(process.cwd(), 'src/ejs/')}`,
   },

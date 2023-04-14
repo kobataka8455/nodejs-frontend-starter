@@ -11,13 +11,13 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 // envから値を取得
 const isMinify = JSON.parse(process.env.MINIFY);
 const dist = process.env.DIST;
+const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
 
 // 設定
 const config = {
   dir: {
     ejs: 'src/ejs/', // EJSテンプレートファイルのディレクトリ
   },
-  isHTMLDir: true, // dist/配下にHTMLフォルダを作成するかどうか
   ejsOptions: {
     root: `${path.resolve(process.cwd(), 'src/ejs/')}`,
   },
@@ -25,17 +25,11 @@ const config = {
     path: {
       comp: '/components', // コンポーネントのパス（src/ejs/をrootとしたルート絶対パス）
     },
-    func: {
-      replacePath: (path) => {
-        // ここだけ確認
-        return config.isHTMLDir ? path.replace(/\//i, '') : path.replace(/\//i, '../');
-      },
-    },
   },
 };
 
 // 出力先のHTMLファイルを削除
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !process.argv.slice(2)[0]) {
   glob.sync(`${dist}/**/*.html`).forEach((file) => {
     fs.unlinkSync(file);
   });
@@ -66,14 +60,17 @@ const compileTemplate = (templatePath, data, options) => {
   }
 };
 
-// ディレクトリ内のすべてのEJSファイルを取得する
-const files = glob.sync(`${config.dir.ejs}/**/!(_)*.ejs`);
+// 引数があれば引数のファイルをコンパイルする、なければ全てのファイルをコンパイルする
+const files = process.argv.slice(2)[0] ? new Array(process.argv.slice(2)[0]) : glob.sync(`${config.dir.ejs}/**/!(_)*.ejs`);
 files.forEach((file) => {
+  // ejsファイルのrootへの相対パスを設定する
+  config.ejsData.path.static = path.relative(file, 'src/ejs/');
+
   // テンプレートをコンパイルする
   const compiledTemplate = compileTemplate(file, config.ejsData, config.ejsOptions);
 
   // コンパイルされたHTMLを出力する
-  const HTMLFolder = config.isHTMLDir ? `${dist}/html/` : `${dist}/`;
+  const HTMLFolder = isHTMLDir ? `${dist}/html/` : `${dist}/`;
   const distPath = file.replace(config.dir.ejs, HTMLFolder).replace('.ejs', '.html');
   ensureDirectoryExistence(path.dirname(distPath));
   fs.writeFileSync(distPath, compiledTemplate);

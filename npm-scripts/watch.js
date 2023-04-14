@@ -6,6 +6,7 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 
 // envから値を取得
 const dist = process.env.DIST;
+const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
 
 // 監視対象のフォルダとファイルを指定
 const targets = 'src/**/*';
@@ -23,7 +24,8 @@ const remove = async (type, path) => {
   if (type === 'scss') {
     targetPath = targetPath.replace('/scss/', '/css/').replace('.scss', '.css');
   } else if (type === 'ejs') {
-    targetPath = targetPath.replace('/ejs/', '/').replace('.ejs', '.html');
+    const htmlFolder = isHTMLDir ? '/html/' : '/';
+    targetPath = targetPath.replace('/ejs/', htmlFolder).replace('.ejs', '.html');
   }
 
   // distに対象のファイル/フォルダがあれば削除
@@ -39,10 +41,18 @@ const remove = async (type, path) => {
   }
 };
 
-const action = (type) => {
-  exec(`npm run build:${type}`, (err) => {
+const action = (type, path) => {
+  exec(`npm run build:${type} "${path}"`, (err, stdout, stderr) => {
     if (err) {
       console.error(err);
+      return;
+    }
+    if (stdout) {
+      console.error(stdout);
+      return;
+    }
+    if (stderr) {
+      console.error(stderr);
       return;
     }
   });
@@ -50,7 +60,7 @@ const action = (type) => {
 
 // 引数で受け取ったeventに応じて処理を分ける
 const main = (event, path) => {
-  const color = event === 'add' ? '\x1b[32;1m' : event === 'change' ? '\x1b[36;1m' : '\x1b[31;1m';
+  // const color = event === 'add' ? '\x1b[32;1m' : event === 'change' ? '\x1b[36;1m' : '\x1b[31;1m';
   let type = path.split('.').pop();
 
   // フォルダパスの場合
@@ -60,11 +70,11 @@ const main = (event, path) => {
     type = 'ejs';
   }
 
-  console.log(`${color}${path} has been ${event}\x1b[0m`);
+  // console.log(`${color}${path} has been ${event}\x1b[0m`);
   if (event === 'unlink' || event === 'unlinkDir') {
     remove(type, path).catch(console.error);
   } else {
-    action(type);
+    action(type, path);
   }
 };
 
