@@ -1,5 +1,6 @@
-# Ignore all HTML files:
+# Ignore all files:
 *.html
+*.scss
 *.ejs
 *.md
 node_modules

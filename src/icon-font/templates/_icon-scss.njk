@@ -9,25 +9,25 @@
 {%- set hash = '' -%}
 {%- endif -%}
 
-@mixin font-face {
+@mixin font-face ($iconPath:"{{ fontPath }}" ) {
   @font-face {
-    font-family: "{{ fontName }}", sans-serif;
+    font-family: "{{ fontName }}";
     font-weight: normal;
     font-style: normal;
   {%- if ISeot %}
-    src: url("{{ fontPath }}{{ fontName }}.eot");
+    src: url("#{$iconPath}{{ fontName }}.eot");
   {%- endif %}
     src: {% if ISeot -%}
-      url("{{ fontPath }}{{ fontName }}.eot{{ hash }}#iefix") format("embedded-opentype")
+      url("#{$iconPath}{{ fontName }}.eot{{ hash }}#iefix") format("embedded-opentype")
   {%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
   {%- endif -%}
-  {%- if ISwoff2 %}  url("{{ fontPath }}{{ fontName }}.woff2{{ hash }}") format("woff2")
+  {%- if ISwoff2 %}  url("#{$iconPath}{{ fontName }}.woff2{{ hash }}") format("woff2")
   {%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
   {%- endif -%}
-  {%- if ISwoff %}  url("{{ fontPath }}{{ fontName }}.woff{{ hash }}") format("woff")
+  {%- if ISwoff %}  url("#{$iconPath}{{ fontName }}.woff{{ hash }}") format("woff")
   {%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
   {%- endif -%}
-  {%- if ISttf %}  url("{{ fontPath }}{{ fontName }}.ttf{{ hash }}") format("truetype")
+  {%- if ISttf %}  url("#{$iconPath}{{ fontName }}.ttf{{ hash }}") format("truetype")
   {%- set count = count - 1 -%}{%- if count -%},{%- else -%};{%- endif -%}{{'\n'}}
   {%- endif -%}
   }

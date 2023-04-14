@@ -1,3 +1,4 @@
+import path from 'path';
 import fs from 'fs/promises';
 import chokidar from 'chokidar';
 import { exec } from 'child_process';
@@ -17,8 +18,8 @@ const watcher = chokidar.watch(targets, {
   persistent: true,
 });
 
-const remove = async (type, path) => {
-  let targetPath = path.replace('src', dist);
+const remove = async (type, filePath) => {
+  let targetPath = filePath.replace('src', dist);
 
   // distの拡張子に変換
   if (type === 'scss') {
@@ -29,25 +30,28 @@ const remove = async (type, path) => {
   }
 
   // distに対象のファイル/フォルダがあれば削除
-  if (await fs.stat(targetPath).then((stats) => stats.isDirectory())) {
-    await fs.rm(targetPath, { recursive: true, force: true });
-  } else if (
-    await fs
-      .access(targetPath)
-      .then(() => true)
-      .catch(() => false)
-  ) {
-    await fs.unlink(targetPath);
+  try {
+    const stats = await fs.stat(targetPath);
+    if (stats.isDirectory()) {
+      await fs.rm(targetPath, { recursive: true, force: true });
+    } else if (stats.isFile()) {
+      await fs.unlink(targetPath);
+    }
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
   }
 };
 
-const action = (type, path) => {
-  exec(`npm run build:${type} "${path}"`, (err, stdout, stderr) => {
+const action = (type, filePath) => {
+  exec(`${filePath ? `cross-env TARGET_FILE="${filePath}" ` : ''}npm run build:${type}`, (err, stdout, stderr) => {
     if (err) {
       console.error(err);
       return;
     }
-    if (stdout) {
+    // jsファイル(Rollup)の場合は結果がstderrに出力されるので
+    if (stdout && type !== 'js') {
       console.error(stdout);
       return;
     }
@@ -59,28 +63,61 @@ const action = (type, path) => {
 };
 
 // 引数で受け取ったeventに応じて処理を分ける
-const main = (event, path) => {
-  // const color = event === 'add' ? '\x1b[32;1m' : event === 'change' ? '\x1b[36;1m' : '\x1b[31;1m';
-  let type = path.split('.').pop();
+const main = (event, filePath) => {
+  // 全イベント切り替える場合
+  const color = event === 'add' ? '\x1b[32;1m' : event === 'change' ? '\x1b[36;1m' : '\x1b[31;1m';
+  let type = filePath.split('.').pop();
 
-  // フォルダパスの場合
-  if (path.includes('/scss/')) {
+  /*  partialファイルの場合は
+   ** 全ファイルを更新するためのフラグ設定
+   **
+   ** partialファイル以外は単体で更新する
+   */
+  const fileName = path.basename(filePath);
+  let isAll = false;
+
+  // フォルダパスで種別を判別
+  if (filePath.includes('/scss/')) {
     type = 'scss';
-  } else if (path.includes('/ejs/')) {
+    isAll = fileName.startsWith('_'); // partialファイル判定
+  } else if (filePath.includes('/ejs/')) {
     type = 'ejs';
+    isAll = fileName.startsWith('_'); // partialファイル判定
+  } else if (filePath.includes('/scripts/')) {
+    type = 'js';
+    isAll = fileName.startsWith('_'); // partialファイル判定
+  } else if (filePath.includes('/images/')) {
+    type = 'image';
+  } else if (filePath.includes('/icon-font/svg/')) {
+    type = 'icon';
   }
 
-  // console.log(`${color}${path} has been ${event}\x1b[0m`);
   if (event === 'unlink' || event === 'unlinkDir') {
-    remove(type, path).catch(console.error);
+    remove(type, filePath).catch(console.error);
+    console.log(`${color}${filePath} has been ${event}\x1b[0m`);
+
+    // iconの場合は削除後に再コンパイルが必要
+    if (type === 'icon') {
+      action(type);
+    }
   } else {
-    action(type, path);
+    if (isAll) {
+      action(type);
+    } else {
+      action(type, filePath);
+    }
   }
 };
 
 watcher.on('ready', () => {
-  watcher.on('add', (path) => main('add', path));
+  watcher.on('add', (filePath) => main('add', filePath));
 });
-watcher.on('change', (path) => main('change', path));
-watcher.on('unlink', (path) => main('unlink', path));
-watcher.on('unlinkDir', (path) => main('unlinkDir', path));
+
+// changeのイベントがファイル操作が早いと複数回発火してしまうので、タイマーで制御
+let timer;
+watcher.on('change', (filePath) => {
+  clearTimeout(timer);
+  timer = setTimeout(() => main('change', filePath), 500);
+});
+watcher.on('unlink', (filePath) => main('unlink', filePath));
+watcher.on('unlinkDir', (filePath) => main('unlinkDir', filePath));

@@ -1,10 +1,10 @@
-@mixin font-face {
+@mixin font-face($iconPath: '../icon-font/') {
   @font-face {
-    font-family: 'my-icon', sans-serif;
+    font-family: 'my-icon';
     font-weight: normal;
     font-style: normal;
-    src: url('../icon-font/my-icon.eot');
-    src: url('../icon-font/my-icon.eot#iefix') format('embedded-opentype'), url('../icon-font/my-icon.woff2') format('woff2'), url('../icon-font/my-icon.woff') format('woff'), url('../icon-font/my-icon.ttf') format('truetype');
+    src: url('#{$iconPath}my-icon.eot');
+    src: url('#{$iconPath}my-icon.eot#iefix') format('embedded-opentype'), url('#{$iconPath}my-icon.woff2') format('woff2'), url('#{$iconPath}my-icon.woff') format('woff'), url('#{$iconPath}my-icon.ttf') format('truetype');
   }
 
   [class*='my-icon--'],

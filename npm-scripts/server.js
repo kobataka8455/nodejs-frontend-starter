@@ -1,4 +1,4 @@
-import bs from 'browser-sync';
+import browserSync from 'browser-sync';
 import chokidar from 'chokidar';
 import http from 'http';
 import path from 'path';
@@ -60,12 +60,14 @@ const server = http.createServer((req, res) => {
           } else {
             const url = req.url.endsWith('/') ? req.url : `${req.url}/`;
             res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.write(`<body>`);
             res.write(`<h1>Folder: ${req.url}</h1>`);
             res.write('<ul>');
             files.forEach((file) => {
               res.write(`<li><a href="${url}${file}">${file}</a></li>`);
             });
             res.write('</ul>');
+            res.write(`</body>`);
             res.end();
           }
         });
@@ -95,10 +97,11 @@ server.on('error', (err) => {
 });
 
 // サーバーの起動
+const bs = browserSync.create();
 server.listen(config.bsPort, () => {
   console.log(`Server running at http://localhost:${config.bsPort}`);
   // braowser-syncの起動
-  bs.create().init({
+  bs.init({
     proxy: `http://localhost:${config.bsPort}`,
     port: config.port,
     open: true,
@@ -108,5 +111,5 @@ server.listen(config.bsPort, () => {
 
 // ファイルの変更を検知してブラウザをリロードする
 chokidar.watch(`${dist}/**/*`).on('all', () => {
-  bs.reload;
+  bs.reload();
 });

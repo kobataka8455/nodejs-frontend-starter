@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import glob from 'glob';
+import { glob } from 'glob';
 import sass from 'sass';
 import { ensureDirectoryExistence } from './create-directory.js';
 import dotenv from 'dotenv';
@@ -9,6 +9,7 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 // envから値を取得
 const isMinify = JSON.parse(process.env.MINIFY);
 const dist = process.env.DIST;
+const argTargetFile = process.env.TARGET_FILE;
 
 // 設定
 const config = {
@@ -27,7 +28,7 @@ const config = {
 };
 
 // 出力先のCSSファイルを削除
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !argTargetFile) {
   glob.sync(`${config.dir.dist}/**/*.css`).forEach((file) => {
     fs.unlinkSync(file);
   });
@@ -45,17 +46,12 @@ const compileScss = (scssFilePath) => {
 };
 
 // SCSSファイルをコンパイルしてCSSファイルに出力する関数
-const compileAllScssFiles = () => {
-  const scssFiles = glob.sync(`${config.dir.scss}/**/!(_)*.scss`);
+const scssFiles = argTargetFile ? new Array(argTargetFile) : glob.sync(`${config.dir.scss}/**/!(_)*.scss`);
+scssFiles.forEach((file) => {
+  const cssFilePath = file.replace(config.dir.scss, config.dir.dist).replace('.scss', '.css');
 
-  scssFiles.forEach((file) => {
-    const cssFilePath = file.replace(config.dir.scss, config.dir.dist).replace('.scss', '.css');
-
-    ensureDirectoryExistence(path.dirname(cssFilePath));
-    const css = compileScss(file);
-    fs.writeFileSync(cssFilePath, css);
-    console.log(`\x1b[36;1m${file} -> ${cssFilePath} ...\x1b[0m`);
-  });
-};
-
-compileAllScssFiles();
+  ensureDirectoryExistence(path.dirname(cssFilePath));
+  const css = compileScss(file);
+  fs.writeFileSync(cssFilePath, css);
+  console.log(`\x1b[36;1m${file} -> ${cssFilePath} ...\x1b[0m`);
+});

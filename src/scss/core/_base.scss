@@ -8,10 +8,10 @@ html {
 }
 
 body {
-  color: #333;
-  font-size: 1.6rem;
   min-width: 990px;
-  font-family: Avenir, -apple-system, Arial, 'Helvetica Neue', Roboto, 'Segoe UI', BlinkMacSystemFont, sans-serif;
+  font-family: "Avenir", -apple-system, "Arial", 'Helvetica Neue', "Roboto", 'Segoe UI', BlinkMacSystemFont, sans-serif;
+  font-size: 1.6rem;
+  color: #333;
 }
 
 img {
@@ -64,9 +64,28 @@ a {
 button {
   font-size: inherit;
   color: inherit;
+  cursor: pointer;
   background: none;
   border: none;
-  cursor: pointer;
   outline: none;
   appearance: none;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  padding: 24px;
+}
+
+main {
+  padding: 24px;
+}
+
+footer {
+  padding: 24px;
+  margin-top: auto;
 }

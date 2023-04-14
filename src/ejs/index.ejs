@@ -1,4 +1,4 @@
-<%# css/js/image path = ${path.static} %>
+<%# ${path.static} is css/js/imageの相対パス  %>
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -7,10 +7,16 @@
 </head>
 
 <body>
-  <div id="wrapper">
+  <div class="wrapper">
     <%- include(`${path.comp}/_header`) -%>
     <main>
-      メインコンテンツaaa
+      <p>メインコンテンツ</p>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p>アイコン実装サンプル</p>
+      <span class="my-icon"></span>
     </main>
     <%- include(`${path.comp}/_footer`) -%>
   </div>

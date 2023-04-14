@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import glob from 'glob';
+import { glob } from 'glob';
 import ejs from 'ejs';
 import { minify } from 'html-minifier';
 import jsBeautify from 'js-beautify';
@@ -12,6 +12,7 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 const isMinify = JSON.parse(process.env.MINIFY);
 const dist = process.env.DIST;
 const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
+const argTargetFile = process.env.TARGET_FILE;
 
 // 設定
 const config = {
@@ -29,8 +30,8 @@ const config = {
 };
 
 // 出力先のHTMLファイルを削除
-if (process.env.NODE_ENV !== 'production' && !process.argv.slice(2)[0]) {
-  glob.sync(`${dist}/**/*.html`).forEach((file) => {
+if (process.env.NODE_ENV !== 'production' && !argTargetFile) {
+  glob.sync(`${dist}/html/**/*.html`).forEach((file) => {
     fs.unlinkSync(file);
   });
 }
@@ -61,7 +62,7 @@ const compileTemplate = (templatePath, data, options) => {
 };
 
 // 引数があれば引数のファイルをコンパイルする、なければ全てのファイルをコンパイルする
-const files = process.argv.slice(2)[0] ? new Array(process.argv.slice(2)[0]) : glob.sync(`${config.dir.ejs}/**/!(_)*.ejs`);
+const files = argTargetFile ? new Array(argTargetFile) : glob.sync(`${config.dir.ejs}/**/!(_)*.ejs`);
 files.forEach((file) => {
   // ejsファイルのrootへの相対パスを設定する
   config.ejsData.path.static = path.relative(file, 'src/ejs/');

@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import glob from 'glob';
+import { glob } from 'glob';
 import _ from 'lodash';
 import svgicons2svgfont from 'svgicons2svgfont';
 import svg2ttf from 'svg2ttf';
@@ -109,7 +109,7 @@ const generateWebfont = async () => {
 
     // HTMLファイルを生成
     const htmlContent = env.render(config.template.html, createFileOptions);
-
+    console.log(config.output.html);
     // フォントファイルを保存
     ensureDirectoryExistence(config.dir.distFont);
     if (config.formats.includes('ttf')) fs.writeFileSync(path.join(config.dir.distFont, `${config.fontName}.ttf`), fontData.ttf);
@@ -140,7 +140,10 @@ const generateWebfont = async () => {
       }
     }
     glyph.metadata = {
-      name: basename.replace(/(u[\dA-F]{4}-)/g, '').replace(/\.svg$/i, ''),
+      name: basename
+        .replace(/(u[\dA-F]{4}-)/g, '')
+        .replace(/\.svg$/i, '')
+        .replace(/\s+/g, '-'),
       unicode: [String.fromCharCode(lastUnicode)],
     };
     fontStream.write(glyph);

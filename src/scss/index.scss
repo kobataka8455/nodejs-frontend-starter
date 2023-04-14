@@ -1,6 +1,13 @@
 @use '../../node_modules/normalize.css/normalize.css';
-@use 'components/base';
+@use 'core/base';
 
 // icon-fotnを使用しない場合は以下2行は削除
+// font-face()の引数にはicon-fontのパスを指定する(デフォルトは'../icon-font/')
 @use 'icon-font/icon-font' as *;
 @include font-face;
+
+
+// アイコン実装サンプル
+.my-icon {
+  @include my-icon--check('before');
+}

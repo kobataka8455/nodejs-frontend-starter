@@ -1,36 +1,36 @@
 {
-  "extends": "stylelint-config-standard-scss",
+  "extends": [
+    "stylelint-config-standard-scss",
+    "stylelint-config-recess-order"
+  ],
   "plugins": [
-    "stylelint-declaration-block-no-ignored-properties",
-    "stylelint-order"
+    "stylelint-declaration-block-no-ignored-properties"
   ],
   "overrides": [
     {
-      "files": [
-        "./src/**/*.scss"
-      ],
-      "customSyntax": "postcss-scss",
-      "rules": {
-        "scss/double-slash-comment-whitespace-inside": "always",
-        "scss/at-extend-no-missing-placeholder": true,
-        "scss/dollar-variable-pattern": null
-      }
+      "files": ["./src/**/*.scss"],
+      "customSyntax": "postcss-scss"
     }
   ],
   "rules": {
     "font-family-name-quotes": "always-unless-keyword",
+    "font-family-no-missing-generic-family-keyword": null,
+    "color-named": "never",
     "scss/at-mixin-pattern": null,
     "selector-class-pattern": ".*",
     "scss/comment-no-empty": null,
     "plugin/declaration-block-no-ignored-properties": true,
     "no-empty-source": true,
-    "selector-max-id": 0,
-    "selector-type-no-unknown": [true, {
-      "ignoreTypes": ["/^_/"]
+    "selector-type-no-unknown":true,
+    "rule-empty-line-before": ["always", {
+      "except": ["after-single-line-comment"]
     }],
-    "declaration-colon-newline-after": null,
-    "rule-empty-line-before": "always",
     "declaration-property-value-no-unknown": true,
-    "order/properties-order": []
+    "scss/dollar-variable-pattern": ".*",
+    "keyframes-name-pattern": ".*",
+    "max-line-length": 9999,
+    "declaration-block-no-duplicate-properties": true,
+    "declaration-block-no-duplicate-custom-properties": true,
+    "function-calc-no-unspaced-operator": true
   }
 }

@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import glob from 'glob';
+import { glob } from 'glob';
 import imagemin from 'imagemin';
 import imageminUpng from 'imagemin-upng';
 import imageminSvgo from 'imagemin-svgo';
@@ -9,6 +9,7 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 
 // envから値を取得
 const dist = process.env.DIST;
+const argTargetFile = process.env.TARGET_FILE;
 
 // 設定
 const config = {
@@ -21,12 +22,21 @@ const config = {
   },
 };
 
+// pngがsvgを判定
+const isValidFile = (file) => {
+  const extension = path.basename(file).split('.').pop().toLowerCase();
+  if (extension !== 'png' && extension !== 'svg') {
+    return false;
+  }
+  return true;
+};
+
 const compressImages = async () => {
-  await fs.promises.rm(config.dir.dist, { recursive: true, force: true });
+  if (!argTargetFile) await fs.promises.rm(config.dir.dist, { recursive: true, force: true });
   const pngFiles = glob.sync(`${config.dir.src}/**/*.png`);
   const svgFiles = glob.sync(`${config.dir.src}/**/*.svg`);
 
-  const allFiles = [...pngFiles, ...svgFiles];
+  const allFiles = argTargetFile ? [argTargetFile] : [...pngFiles, ...svgFiles];
 
   for (const file of allFiles) {
     const fileName = file.replace(config.dir.src, '');
@@ -47,7 +57,8 @@ const compressImages = async () => {
 // src/imagesフォルダの存在していればcompressImages()を実行
 try {
   fs.accessSync(config.dir.src);
-  compressImages();
+  // pngかsvgの対象ファイルが指定されているか、対象ファイルの指定がなければ実行
+  if ((argTargetFile && isValidFile(argTargetFile)) || !argTargetFile) compressImages();
 } catch (error) {
   console.log('\x1b[31;1mNo images directory\x1b[0m');
 }
