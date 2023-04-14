@@ -15,14 +15,14 @@ const argTargetFile = process.env.TARGET_FILE;
 const config = {
   dir: {
     src: `src/images/`, // 画像ファイルのディレクトリ
-    dist: `${dist}/images/`, // 画像ファイルのディレクトリ
+    dist: `${dist}/images/`, // 出力先のディレクトリ
   },
   quality: {
     png: 256, // 0 or 256 = lossless, 1-255 = lossy
   },
 };
 
-// pngがsvgを判定
+// pngかsvgかを判定
 const isValidFile = (file) => {
   const extension = path.basename(file).split('.').pop().toLowerCase();
   if (extension !== 'png' && extension !== 'svg') {

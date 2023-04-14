@@ -17,7 +17,7 @@ const argTargetFile = process.env.TARGET_FILE;
 // 設定
 const config = {
   dir: {
-    ejs: 'src/ejs/', // EJSテンプレートファイルのディレクトリ
+    ejs: 'src/ejs/', // EJSファイルのディレクトリ
   },
   ejsOptions: {
     root: `${path.resolve(process.cwd(), 'src/ejs/')}`,
@@ -36,7 +36,7 @@ if (process.env.NODE_ENV !== 'production' && !argTargetFile) {
   });
 }
 
-// テンプレートファイルをコンパイルする関数
+// EJSファイルをコンパイルする関数
 const compileTemplate = (templatePath, data, options) => {
   const template = fs.readFileSync(templatePath, 'utf8');
   const compiledTemplate = ejs.render(template, data, options);
@@ -64,10 +64,10 @@ const compileTemplate = (templatePath, data, options) => {
 // 引数があれば引数のファイルをコンパイルする、なければ全てのファイルをコンパイルする
 const files = argTargetFile ? new Array(argTargetFile) : glob.sync(`${config.dir.ejs}/**/!(_)*.ejs`);
 files.forEach((file) => {
-  // ejsファイルのrootへの相対パスを設定する
-  config.ejsData.path.static = path.relative(file, 'src/ejs/');
+  // EJSファイルのrootへの相対パスを設定する
+  config.ejsData.path.static = path.relative(file, config.dir.ejs);
 
-  // テンプレートをコンパイルする
+  // EJSファイルをコンパイルする
   const compiledTemplate = compileTemplate(file, config.ejsData, config.ejsOptions);
 
   // コンパイルされたHTMLを出力する

@@ -9,6 +9,7 @@ const isMinify = JSON.parse(process.env.MINIFY);
 const dist = process.env.DIST;
 const argTargetFile = process.env.TARGET_FILE;
 
+// rollupの設定
 const setting = (name) => {
   return {
     input: name,

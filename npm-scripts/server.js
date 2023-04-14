@@ -96,8 +96,10 @@ server.on('error', (err) => {
   }
 });
 
-// サーバーの起動
+// braowser-syncのインスタンス作成
 const bs = browserSync.create();
+
+// サーバーの起動
 server.listen(config.bsPort, () => {
   console.log(`Server running at http://localhost:${config.bsPort}`);
   // braowser-syncの起動

@@ -12,7 +12,7 @@ const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフ�
 // 監視対象のフォルダとファイルを指定
 const targets = 'src/**/*';
 
-// chokidarを使って監視する
+// chokidarの設定
 const watcher = chokidar.watch(targets, {
   ignored: /(^|[\\/])\../, // ignore dotfiles
   persistent: true,
@@ -45,12 +45,13 @@ const remove = async (type, filePath) => {
 };
 
 const action = (type, filePath) => {
+  // filePathがある場合はファイル単体で起動
   exec(`${filePath ? `cross-env TARGET_FILE="${filePath}" ` : ''}npm run build:${type}`, (err, stdout, stderr) => {
     if (err) {
       console.error(err);
       return;
     }
-    // jsファイル(Rollup)の場合は結果がstderrに出力されるので
+    // jsファイル(rollup)の場合は結果がstderrに出力されるので
     if (stdout && type !== 'js') {
       console.error(stdout);
       return;
@@ -64,11 +65,12 @@ const action = (type, filePath) => {
 
 // 引数で受け取ったeventに応じて処理を分ける
 const main = (event, filePath) => {
-  // 全イベント切り替える場合
+  // ターミナルのカラー設定
   const color = event === 'add' ? '\x1b[32;1m' : event === 'change' ? '\x1b[36;1m' : '\x1b[31;1m';
   let type = filePath.split('.').pop();
 
-  /*  partialファイルの場合は
+  /* 
+   ** partialファイルの場合は
    ** 全ファイルを更新するためのフラグ設定
    **
    ** partialファイル以外は単体で更新する
@@ -113,7 +115,7 @@ watcher.on('ready', () => {
   watcher.on('add', (filePath) => main('add', filePath));
 });
 
-// changeのイベントがファイル操作が早いと複数回発火してしまうので、タイマーで制御
+// cmd + s 等を連打すると、changeイベントが複数回発火してしまうので、タイマーで制御
 let timer;
 watcher.on('change', (filePath) => {
   clearTimeout(timer);

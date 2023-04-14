@@ -40,7 +40,7 @@ const config = {
     svg: `src/icon-font/svg`,
     distFont: `${dist}/icon-font/`,
   },
-  isHTML: process.env.NODE_ENV !== 'production', // HTMLを生成するかどうか
+  isHTML: process.env.NODE_ENV !== 'production', // 一覧のHTMLを生成するかどうか
   prependUnicode: false, // svgファイル名の先頭にUnicodeを付与するかどうか
   addHashInFontUrl: false, // フォントファイルのURLにハッシュを付与するかどうか
 };
@@ -59,8 +59,8 @@ const getSvgFiles = () => {
   });
 };
 
-// Webフォントを生成する関数
-const generateWebfont = async () => {
+// ファイルを生成する関数
+const generateFiles = async () => {
   const env = nunjucks.configure({ autoescape: false });
   const fontStream = new svgicons2svgfont({
     fontName: config.fontName,
@@ -103,13 +103,13 @@ const generateWebfont = async () => {
       formats: config.formats,
       resetCSS: normalizeCss,
     };
-    // SCSSファイルを生成
+    // SCSSを生成
     const scssContent = env.render(config.template.scss, createFileOptions);
     const formattedScssContent = prettier.format(scssContent, { parser: 'scss', ...prettierConfig });
 
-    // HTMLファイルを生成
+    // HTMLを生成
     const htmlContent = env.render(config.template.html, createFileOptions);
-    console.log(config.output.html);
+
     // フォントファイルを保存
     ensureDirectoryExistence(config.dir.distFont);
     if (config.formats.includes('ttf')) fs.writeFileSync(path.join(config.dir.distFont, `${config.fontName}.ttf`), fontData.ttf);
@@ -152,4 +152,4 @@ const generateWebfont = async () => {
   fontStream.end();
 };
 
-generateWebfont();
+generateFiles();

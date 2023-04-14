@@ -45,7 +45,7 @@ const compileScss = (scssFilePath) => {
   return result.css.toString();
 };
 
-// SCSSファイルをコンパイルしてCSSファイルに出力する関数
+// SCSSファイルを取得してコンパイル実行からファイル書き出し
 const scssFiles = argTargetFile ? new Array(argTargetFile) : glob.sync(`${config.dir.scss}/**/!(_)*.scss`);
 scssFiles.forEach((file) => {
   const cssFilePath = file.replace(config.dir.scss, config.dir.dist).replace('.scss', '.css');
