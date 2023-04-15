@@ -31,6 +31,8 @@ const getContentType = (filePath) => {
       return 'image/png';
     case '.jpg':
       return 'image/jpg';
+    case '.svg':
+      return 'image/svg+xml';
     case '.wav':
       return 'audio/wav';
     default:
