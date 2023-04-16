@@ -2,6 +2,8 @@ import path from 'path';
 import fs from 'fs';
 import { glob } from 'glob';
 import sass from 'sass';
+import postcss from 'postcss';
+import autoprefixer from 'autoprefixer';
 import { ensureDirectoryExistence } from './create-directory.js';
 import dotenv from 'dotenv';
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
@@ -42,7 +44,7 @@ const compileScss = (scssFilePath) => {
     loadPaths: ['./src/scss/'],
   });
 
-  return result.css.toString();
+  return postcss([autoprefixer]).process(result.css.toString()).css;
 };
 
 // SCSSファイルを取得してコンパイル実行からファイル書き出し
