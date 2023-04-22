@@ -83,16 +83,16 @@ const generateFiles = async () => {
   fontStream.on('end', () => {
     // SVGファイルからTTFファイルを生成
     const ttf = svg2ttf(fontData.svg, {});
-    if (config.formats.includes('ttf')) fontData.ttf = new Buffer.from(ttf.buffer);
+    if (config.formats.includes('ttf')) fontData.ttf = Buffer.from(ttf.buffer);
 
     // TTFファイルからEOTファイルを生成
-    if (config.formats.includes('eot')) fontData.eot = new Buffer.from(ttf2eot(ttf.buffer).buffer);
+    if (config.formats.includes('eot')) fontData.eot = Buffer.from(ttf2eot(ttf.buffer));
 
     // TTFファイルからWOFFファイルを生成
-    if (config.formats.includes('woff')) fontData.woff = new Buffer.from(ttf2woff(ttf.buffer).buffer);
+    if (config.formats.includes('woff')) fontData.woff = Buffer.from(ttf2woff(ttf.buffer));
 
     // TTFファイルからWOFF2ファイルを生成
-    if (config.formats.includes('woff2')) fontData.woff2 = new Buffer.from(ttf2woff2(ttf.buffer).buffer);
+    if (config.formats.includes('woff2')) fontData.woff2 = Buffer.from(ttf2woff2(ttf.buffer));
 
     const createFileOptions = {
       hash: config.addHashInFontUrl ? crypto.createHash('md5').update(fontData.svg).digest('hex') : '',
