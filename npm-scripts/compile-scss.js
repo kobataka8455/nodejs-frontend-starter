@@ -19,14 +19,6 @@ const config = {
     scss: 'src/scss/', // SCSSファイルのディレクトリ
     dist: `${dist}/css/`,
   },
-  ejsOptions: {
-    root: `${path.resolve(process.cwd(), 'src/ejs/')}`,
-  },
-  ejsData: {
-    path: {
-      comp: '/components', // コンポーネントのパス（src/ejs/をrootとしたルート絶対パス）
-    },
-  },
 };
 
 // 出力先のCSSファイルを削除
