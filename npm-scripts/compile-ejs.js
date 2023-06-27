@@ -64,7 +64,9 @@ const compileTemplate = (templatePath, data, options) => {
 // 引数があれば引数のファイルをコンパイルする、なければ全てのファイルをコンパイルする
 const files = argTargetFile ? new Array(argTargetFile) : glob.sync(`${config.dir.ejs}/**/!(_)*.ejs`);
 files.forEach((file) => {
-  // EJSファイルのrootへの相対パスを設定する
+  // EJSファイルのinclude相対パスを設定する
+  config.ejsOptions.filename = file;
+  // 静的ファイルへの相対パス設定
   config.ejsData.path.static = path.relative(file, config.dir.ejs);
 
   // EJSファイルをコンパイルする
