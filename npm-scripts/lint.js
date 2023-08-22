@@ -3,7 +3,7 @@ import { glob } from 'glob';
 import { HTMLHint } from 'htmlhint';
 import { ESLint } from 'eslint';
 import stylelint from 'stylelint';
-import { exec, execSync } from 'child_process';
+import { execSync } from 'child_process';
 const lintType = process.env.LINT;
 const targetFile = process.env.TARGET_FILE;
 
