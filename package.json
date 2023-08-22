@@ -14,9 +14,9 @@
     "serve": "node ./npm-scripts/server.js",
     "watch": "node ./npm-scripts/watch.js",
     "start": "cross-env NODE_ENV=development run-s delete build:* && run-p watch serve",
-    "lint:html": "js-beautify --config .ejsbrc.json -html \"./src/ejs/**/*.ejs\"",
-    "lint:js": "prettier --write \"./src/scripts/**/*.js\"",
-    "lint:css": "stylelint --fix \"./src/scss/**/*.scss\"",
+    "lint:ejs": "cross-env LINT=ejs node ./npm-scripts/lint.js",
+    "lint:js": "cross-env LINT=js node ./npm-scripts/lint.js",
+    "lint:scss": "cross-env LINT=scss node ./npm-scripts/lint.js",
     "lint": "run-s lint:*"
   },
   "lint-staged": {

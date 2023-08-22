@@ -10,8 +10,9 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 
 // envから値を取得
 const isMinify = JSON.parse(process.env.MINIFY);
-const dist = process.env.DIST;
 const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
+const dist = process.env.DIST;
+const HTMLFolder = isHTMLDir ? `${dist}/html/` : `${dist}/`;
 const argTargetFile = process.env.TARGET_FILE;
 
 // 設定
@@ -31,7 +32,7 @@ const config = {
 
 // 出力先のHTMLファイルを削除
 if (process.env.NODE_ENV !== 'production' && !argTargetFile) {
-  glob.sync(`${dist}/html/**/*.html`).forEach((file) => {
+  glob.sync(`${HTMLFolder}**/*.html`).forEach((file) => {
     fs.unlinkSync(file);
   });
 }
@@ -73,7 +74,6 @@ files.forEach((file) => {
   const compiledTemplate = compileTemplate(file, config.ejsData, config.ejsOptions);
 
   // コンパイルされたHTMLを出力する
-  const HTMLFolder = isHTMLDir ? `${dist}/html/` : `${dist}/`;
   const distPath = file.replace(config.dir.ejs, HTMLFolder).replace('.ejs', '.html');
   ensureDirectoryExistence(path.dirname(distPath));
   fs.writeFileSync(distPath, compiledTemplate);

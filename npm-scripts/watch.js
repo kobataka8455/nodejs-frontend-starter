@@ -46,13 +46,13 @@ const remove = async (type, filePath) => {
 
 const action = (type, filePath) => {
   // filePathがある場合はファイル単体で起動
-  exec(`${filePath ? `cross-env TARGET_FILE="${filePath}" ` : ''}npm run build:${type}`, (err, stdout, stderr) => {
+  exec(`${filePath ? `cross-env TARGET_FILE="${filePath}" ` : ''}npm run build:${type} && npm run lint:${type}`, (err, stdout, stderr) => {
     if (err) {
       console.error(err);
       return;
     }
-    // jsファイル(rollup)の場合は結果がstderrに出力されるので
-    if (stdout && type !== 'js') {
+
+    if (stdout) {
       console.error(stdout);
       return;
     }
@@ -69,7 +69,7 @@ const main = (event, filePath) => {
   const color = event === 'add' ? '\x1b[32;1m' : event === 'change' ? '\x1b[36;1m' : '\x1b[31;1m';
   let type = filePath.split('.').pop();
 
-  /* 
+  /*
    ** partialファイルの場合は
    ** 全ファイルを更新するためのフラグ設定
    **
