@@ -6,7 +6,6 @@
 @use 'icon-font/icon-font' as *;
 @include font-face;
 
-
 // アイコン実装サンプル
 .my-icon {
   @include my-icon--check('before');
