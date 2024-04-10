@@ -13,6 +13,7 @@
     }
   ],
   "rules": {
+    "declaration-colon-space-after": "always",
     "font-family-name-quotes": "always-unless-keyword",
     "font-family-no-missing-generic-family-keyword": null,
     "color-named": "never",
