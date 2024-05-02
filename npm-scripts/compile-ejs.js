@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { glob } from 'glob';
 import ejs from 'ejs';
-import { minify } from 'html-minifier';
+import { minify } from 'html-minifier-terser';
 import jsBeautify from 'js-beautify';
 import { ensureDirectoryExistence } from './create-directory.js';
 import dotenv from 'dotenv';
@@ -38,17 +38,16 @@ if (process.env.NODE_ENV !== 'production' && !argTargetFile) {
 }
 
 // EJSファイルをコンパイルする関数
-const compileTemplate = (templatePath, data, options) => {
+const compileTemplate = async (templatePath, data, options) => {
   const template = fs.readFileSync(templatePath, 'utf8');
   const compiledTemplate = ejs.render(template, data, options);
 
   // スペースやインデント起因の表示バグ等を回避のためフォーマットする
   const jsBeautifyOption = JSON.parse(fs.readFileSync('.ejsbrc.json', 'utf8'));
   const formatedTemplate = jsBeautify.html(compiledTemplate, jsBeautifyOption);
-
   // minify判定
   if (isMinify) {
-    return minify(formatedTemplate, {
+    return await minify(formatedTemplate, {
       collapseWhitespace: true,
       removeComments: true,
       minifyCSS: true,
@@ -64,14 +63,14 @@ const compileTemplate = (templatePath, data, options) => {
 
 // 引数があれば引数のファイルをコンパイルする、なければ全てのファイルをコンパイルする
 const files = argTargetFile ? new Array(argTargetFile) : glob.sync(`${config.dir.ejs}/**/!(_)*.ejs`);
-files.forEach((file) => {
+files.forEach(async (file) => {
   // EJSファイルのinclude相対パスを設定する
   config.ejsOptions.filename = file;
   // 静的ファイルへの相対パス設定
   config.ejsData.path.static = path.relative(file, config.dir.ejs);
 
   // EJSファイルをコンパイルする
-  const compiledTemplate = compileTemplate(file, config.ejsData, config.ejsOptions);
+  const compiledTemplate = await compileTemplate(file, config.ejsData, config.ejsOptions);
 
   // コンパイルされたHTMLを出力する
   const distPath = file.replace(config.dir.ejs, HTMLFolder).replace('.ejs', '.html');
