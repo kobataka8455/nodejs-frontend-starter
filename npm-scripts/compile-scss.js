@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { glob } from 'glob';
-import sass from 'sass';
+import * as sass from 'sass';
 import postcss from 'postcss';
 import autoprefixer from 'autoprefixer';
 import { ensureDirectoryExistence } from './create-directory.js';
