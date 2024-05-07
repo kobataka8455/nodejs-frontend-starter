@@ -9,15 +9,21 @@
     "build:js": "rollup -c ./npm-scripts/compile-js.js --bundleConfigAsCjs",
     "build:ejs": "node ./npm-scripts/compile-ejs.js",
     "build:scss": "node ./npm-scripts/compile-scss.js",
-    "build": "cross-env NODE_ENV=production run-s delete build:*",
+    "build": "cross-env NODE_ENV=production run-s delete build:* test",
     "delete": "node ./npm-scripts/delete.js",
     "serve": "node ./npm-scripts/server.js",
     "watch": "node ./npm-scripts/watch.js",
     "start": "cross-env NODE_ENV=development run-s delete build:* && run-p watch serve",
+    "reference": "backstop reference --config=backstop.config.cjs",
+    "test": "rimraf 'backstop_data/bitmaps_test/' && backstop test --config=backstop.config.cjs",
+    "approve": "backstop approve --config=backstop.config.cjs && npm run test",
     "lint:ejs": "cross-env LINT=ejs node ./npm-scripts/lint.js",
     "lint:js": "cross-env LINT=js node ./npm-scripts/lint.js",
     "lint:scss": "cross-env LINT=scss node ./npm-scripts/lint.js",
-    "lint": "run-s lint:*"
+    "lint": "run-s lint:*",
+    "-----": "-----",
+    "build-memo": "テストを実行しない場合は以下のscriptをbuildに変更する",
+    "_build": "cross-env NODE_ENV=production run-s delete build:*"
   },
   "lint-staged": {
     "*.js": [
@@ -46,6 +52,7 @@
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.1",
     "autoprefixer": "^10.4.14",
+    "backstopjs": "^6.3.23",
     "browser-sync": "^2.29.1",
     "chokidar": "^3.5.3",
     "clean-css": "^5.3.2",
@@ -69,6 +76,7 @@
     "postcss": "^8.4.23",
     "postcss-scss": "^4.0.6",
     "prettier": "^2.8.7",
+    "rimraf": "^5.0.5",
     "rollup": "^3.20.6",
     "sass": "^1.62.0",
     "stylelint": "^15.5.0",
