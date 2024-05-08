@@ -1,9 +1,12 @@
 const path = require('path');
 const { glob } = require('glob');
+const dotenv = require('dotenv');
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
-const targets = glob.sync(`${__dirname}/dist/**/*.html`);
+const dist = process.env.DIST;
+const targets = glob.sync(`${__dirname}/${dist}/**/*.html`);
 const scenarios = targets.map((file) => {
-  const label = file.replace(`${__dirname}/dist/`, '').replace(/\//g, '-').replace('.html', '');
+  const label = file.replace(`${__dirname}/${dist}/`, '').replace(/\//g, '-').replace('.html', '');
 
   // ScenarioReference:https://github.com/garris/BackstopJS
   const scenario = {
