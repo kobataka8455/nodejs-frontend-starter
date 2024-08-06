@@ -126,11 +126,11 @@ const generateFiles = async () => {
   getSvgFiles().forEach((file, idx) => {
     const glyph = fs.createReadStream(file);
     const basename = path.basename(file);
-    const matches = basename.match(/^(?:((?:u[0-9a-f]{4,6},?)+)\-)?(.+)\.svg$/i);
+    const matches = basename.match(/^(?:((?:u[0-9a-f]{4,6},?)+)-)?(.+)\.svg$/i);
     if (matches && matches[1]) {
       lastUnicode = parseInt(matches[1].replace(/u/g, ''), 16);
     } else {
-      idx === 0 ? lastUnicode : lastUnicode++;
+      lastUnicode = idx === 0 ? lastUnicode : lastUnicode + 1;
       if (config.prependUnicode) {
         const outputPath = path.join(config.dir.svg, `u${String.fromCharCode(lastUnicode).codePointAt(0).toString(16).toUpperCase()}-${basename}`);
         fs.renameSync(file, outputPath, (err) => {

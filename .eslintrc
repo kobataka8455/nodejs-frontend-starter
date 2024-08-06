@@ -1,7 +1,7 @@
 {
   "globals": {
     "document": true,
-    "window": true,
+    "window": true
   },
   "extends": ["eslint:recommended", "prettier"],
   "parserOptions": {

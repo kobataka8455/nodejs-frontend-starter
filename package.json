@@ -90,6 +90,8 @@
     "ttf2woff2": "^5.0.0"
   },
   "dependencies": {
-    "normalize.css": "^8.0.1"
+    "normalize.css": "^8.0.1",
+    "postcss-html": "^1.7.0",
+    "stylelint-order": "^6.0.4"
   }
 }

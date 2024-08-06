@@ -1,11 +1,6 @@
 {
-  "extends": [
-    "stylelint-config-standard-scss",
-    "stylelint-config-recess-order"
-  ],
-  "plugins": [
-    "stylelint-declaration-block-no-ignored-properties"
-  ],
+  "extends": ["stylelint-config-recess-order", "stylelint-config-standard-scss"],
+  "plugins": ["stylelint-declaration-block-no-ignored-properties", "stylelint-order"],
   "overrides": [
     {
       "files": ["./src/**/*.scss"],
@@ -17,7 +12,7 @@
     "font-family-name-quotes": "always-unless-keyword",
     "font-family-no-missing-generic-family-keyword": null,
     "color-named": "never",
-    "scss/at-mixin-pattern": null,
+    "scss/at-mixin-pattern": ".*",
     "selector-class-pattern": ".*",
     "scss/comment-no-empty": null,
     "plugin/declaration-block-no-ignored-properties": true,
@@ -32,6 +27,12 @@
     "max-line-length": 9999,
     "declaration-block-no-duplicate-properties": true,
     "declaration-block-no-duplicate-custom-properties": true,
-    "function-calc-no-unspaced-operator": true
+    "function-calc-no-unspaced-operator": true,
+    "indentation": 2,
+    "block-opening-brace-space-before": "always",
+    "max-empty-lines": 1,
+    "declaration-empty-line-before": "never",
+    "block-closing-brace-empty-line-before": "never",
+    "alpha-value-notation": "number"
   }
 }
