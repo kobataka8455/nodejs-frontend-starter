@@ -7,10 +7,14 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 
 // envから値を取得
 const dist = process.env.DIST;
+const ejsPath = process.env.EJS_PATH;
 const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
 
 // 監視対象のフォルダとファイルを指定
 const targets = 'src/**/*';
+
+// 常時コンパイルさせたいejsファイルの指定 ex.) ['index.ejs', 'hoge/fuge.ejs']
+const everCompilesEjs = [];
 
 // chokidarの設定
 const watcher = chokidar.watch(targets, {
@@ -63,6 +67,14 @@ const action = (type, filePath) => {
   });
 };
 
+const everCompile = () => {
+  everCompilesEjs.forEach((file) => {
+    if (file.indexOf('.ejs') > -1) {
+      action('ejs', path.join(ejsPath, file));
+    }
+  });
+};
+
 // 引数で受け取ったeventに応じて処理を分ける
 const main = (event, filePath) => {
   // ターミナルのカラー設定
@@ -96,6 +108,7 @@ const main = (event, filePath) => {
 
   if (event === 'unlink' || event === 'unlinkDir') {
     remove(type, filePath).catch(console.error);
+    if (everCompilesEjs.length > 0) everCompile();
     console.log(`${color}${filePath} has been ${event}\x1b[0m`);
 
     // iconの場合は削除後に再コンパイルが必要
@@ -107,6 +120,7 @@ const main = (event, filePath) => {
       action(type);
     } else {
       action(type, filePath);
+      if (everCompilesEjs.length > 0) everCompile();
     }
   }
 };

@@ -12,21 +12,24 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 const isMinify = JSON.parse(process.env.MINIFY);
 const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
 const dist = process.env.DIST;
+const ejsPath = process.env.EJS_PATH;
 const HTMLFolder = isHTMLDir ? `${dist}/html/` : `${dist}/`;
 const argTargetFile = process.env.TARGET_FILE;
 
 // 設定
 const config = {
   dir: {
-    ejs: 'src/ejs/', // EJSファイルのディレクトリ
+    ejs: ejsPath, // EJSファイルのディレクトリ
   },
   ejsOptions: {
-    root: `${path.resolve(process.cwd(), 'src/ejs/')}`,
+    root: `${path.resolve(process.cwd(), ejsPath)}`,
   },
   ejsData: {
     path: {
+      ejs: '/',
       comp: '/components', // コンポーネントのパス（src/ejs/をrootとしたルート絶対パス）
     },
+    files: glob.sync(`${ejsPath}**/!(_)*.ejs`),
   },
 };
 
@@ -68,13 +71,24 @@ files.forEach(async (file) => {
   config.ejsOptions.filename = file;
   // 静的ファイルへの相対パス設定
   config.ejsData.path.static = path.relative(file, config.dir.ejs);
-
   // EJSファイルをコンパイルする
   const compiledTemplate = await compileTemplate(file, config.ejsData, config.ejsOptions);
-
   // コンパイルされたHTMLを出力する
   const distPath = file.replace(config.dir.ejs, HTMLFolder).replace('.ejs', '.html');
   ensureDirectoryExistence(path.dirname(distPath));
   fs.writeFileSync(distPath, compiledTemplate);
+
+  // 常にコンパイルする指定ファイルがあればコンパイル
+  // if (files.length === 1 && !config.everReload.includes(file.replace(config.dir.ejs, ''))) {
+  //   config.everReload.forEach(async (_file) => {
+  //     console.log('hoge');
+  //     const everFile = path.join(config.dir.ejs, _file);
+  //     config.ejsOptions.filename = everFile;
+  //     config.ejsData.path.static = path.relative(everFile, config.dir.ejs);
+  //     const compiledTemplate = await compileTemplate(everFile, config.ejsData, config.ejsOptions);
+  //     const distPath = everFile.replace(config.dir.ejs, HTMLFolder).replace('.ejs', '.html');
+  //     fs.writeFileSync(distPath, compiledTemplate);
+  //   });
+  // }
   console.log(`\x1b[36;1m${file} -> ${distPath.replace('./', '')} ...\x1b[0m`);
 });

@@ -1,4 +1,5 @@
 <%# ${path.static} is css/js/imageの相対パス  %>
+<% include(`${path.ejs}/_function/_index`) -%>
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -11,13 +12,12 @@
   <div class="wrapper">
     <%- include(`${path.comp}/_header`) -%>
     <main>
-      <p>メインコンテンツ</p>
-      <br>
-      <br>
-      <br>
-      <br>
       <p>アイコン実装サンプル</p>
       <span class="my-icon"></span>
+      <p>ファイル一覧サンプル</p>
+      <%- files %>
+      <p>関数サンプル</p>
+      <%- func.fnc01() %>
     </main>
     <%- include(`${path.comp}/_footer`) -%>
   </div>

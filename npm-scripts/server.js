@@ -8,6 +8,7 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 
 // envから値を取得
 const dist = process.env.DIST;
+const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
 
 // 設定
 const config = {
@@ -108,6 +109,7 @@ server.listen(config.bsPort, () => {
   bs.init({
     proxy: `http://localhost:${config.bsPort}`,
     port: config.port,
+    startPath: isHTMLDir ? '/html/' : '/',
     open: true,
     ui: false,
   });
