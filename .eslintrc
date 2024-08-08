@@ -3,15 +3,21 @@
     "document": true,
     "window": true
   },
-  "extends": ["eslint:recommended", "prettier"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 13,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "env": {
     "browser": true,
     "jquery" : true,
     "node": true,
     "es2022": true
-  }
+  },
+  "root": true
 }

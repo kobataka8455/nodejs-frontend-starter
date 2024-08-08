@@ -88,8 +88,7 @@ const StylelintFunc = async () => {
 // eslint
 const eslintFunc = async () => {
   console.log(`Starting '\x1b[36mlint:${process.env.LINT}\x1b[0m'`);
-  // prettier --write \"\"
-  const allJs = targetFile ? new Array(targetFile) : glob.sync('./src/scripts/**/*.js', { ignore: '' });
+  const allJs = targetFile ? new Array(targetFile) : glob.sync('./src/scripts/**/*.{ts,js}', { ignore: '' });
   allJs.sort().forEach((jsFile) => {
     const eslintCli = new ESLint({ overrideConfigFile: '.eslintrc' });
     const report = eslintCli.lintFiles(jsFile);
@@ -106,7 +105,7 @@ const eslintFunc = async () => {
   });
 
   // format
-  execSync(`prettier --write "./src/scripts/**/*.js"`, (err, stdout, stderr) => {
+  execSync(`prettier --write "./src/scripts/**/*.{ts,js}"`, (err, stdout, stderr) => {
     if (err) {
       console.error(err);
       return;
@@ -124,9 +123,9 @@ const eslintFunc = async () => {
 };
 
 const main = async () => {
-  lintType === 'ejs' && (await HTMLHintFunc());
-  lintType === 'scss' && (await StylelintFunc());
-  lintType === 'js' && (await eslintFunc());
+  if (lintType === 'ejs') await HTMLHintFunc();
+  if (lintType === 'scss') await StylelintFunc();
+  if (lintType === 'js') await eslintFunc();
 };
 
 main();

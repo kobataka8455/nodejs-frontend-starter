@@ -2,6 +2,7 @@ import fs from 'fs';
 import { glob } from 'glob';
 import terser from '@rollup/plugin-terser';
 import dotenv from 'dotenv';
+import typescript from '@rollup/plugin-typescript';
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
 // envから値を取得
@@ -17,7 +18,7 @@ const setting = (name) => {
       file: name.replace(`src/scripts`, `${dist}/scripts`),
       format: 'iife',
     },
-    plugins: [isMinify ? terser({}) : null],
+    plugins: [isMinify ? terser({}) : null, typescript()],
   };
 };
 
@@ -27,6 +28,6 @@ if (process.env.NODE_ENV !== 'production' && !argTargetFile) {
     fs.unlinkSync(file);
   });
 }
-const files = argTargetFile ? new Array(argTargetFile) : glob.sync(`src/scripts/**/!(_)*.js`);
+const files = argTargetFile ? new Array(argTargetFile) : glob.sync(`src/scripts/**/!(_)*.{ts,js}`);
 const settings = files.map((file) => setting(file));
 export default settings;
