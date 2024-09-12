@@ -9,7 +9,7 @@
     "build:js": "rollup -c ./npm-scripts/compile-js.js --bundleConfigAsCjs",
     "build:ejs": "node ./npm-scripts/compile-ejs.js",
     "build:scss": "node ./npm-scripts/compile-scss.js",
-    "build": "cross-env NODE_ENV=production run-s delete build:* test",
+    "build": "cross-env NODE_ENV=production run-s delete build:*",
     "delete": "node ./npm-scripts/delete.js",
     "serve": "node ./npm-scripts/server.js",
     "watch": "node ./npm-scripts/watch.js",
@@ -22,8 +22,8 @@
     "lint:scss": "cross-env LINT=scss node ./npm-scripts/lint.js",
     "lint": "run-s lint:*",
     "-----": "-----",
-    "build-memo": "テストを実行しない場合は以下のscriptをbuildに変更する",
-    "_build": "cross-env NODE_ENV=production run-s delete build:*"
+    "build-memo": "テストも実行する場合は以下のscriptをbuildに変更する",
+    "_build": "cross-env NODE_ENV=production run-s delete build:* test"
   },
   "lint-staged": {
     "*.js": [
