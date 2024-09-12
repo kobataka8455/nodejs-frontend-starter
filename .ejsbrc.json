@@ -3,5 +3,7 @@
   "end_with_newline": true,
   "max_preserve_newlines": 2,
   "type": ["html"],
-  "unformatted": ["style"]
+  "unformatted": ["style"],
+  "space_in_parent": true,
+  "space_before_conditional": true
 }

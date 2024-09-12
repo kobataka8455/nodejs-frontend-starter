@@ -12,6 +12,7 @@
     "font-family-name-quotes": "always-unless-keyword",
     "font-family-no-missing-generic-family-keyword": null,
     "color-named": "never",
+    "color-hex-case": "lower",
     "scss/at-mixin-pattern": ".*",
     "selector-class-pattern": ".*",
     "scss/comment-no-empty": null,
