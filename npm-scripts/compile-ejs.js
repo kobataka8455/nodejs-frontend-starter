@@ -70,7 +70,20 @@ files.forEach(async (file) => {
   // EJSファイルのinclude相対パスを設定する
   config.ejsOptions.filename = file;
   // 静的ファイルへの相対パス設定
-  config.ejsData.path.static = path.relative(file, config.dir.ejs);
+  const relativePath = path.relative(config.dir.ejs, file);
+  const regex = /[\/]/g;
+  // 相対パス
+  const outputRelativePath = () => {
+    const distLevel = isHTMLDir ? 1 : 0;
+    const slashCount = (relativePath.match(regex) ? relativePath.match(regex).length : 0) + distLevel;
+    if (slashCount === 0) {
+      return '.';
+    } else {
+      return '../'.repeat(slashCount).slice(0, -1);
+    }
+  };
+
+  config.ejsData.path.static = outputRelativePath();
   // EJSファイルをコンパイルする
   const compiledTemplate = await compileTemplate(file, config.ejsData, config.ejsOptions);
   // コンパイルされたHTMLを出力する
