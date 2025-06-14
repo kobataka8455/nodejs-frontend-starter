@@ -39,7 +39,7 @@
     ]
   },
   "engines": {
-    "node": ">=18.0.0 || >=20.0.0"
+    "node": ">=20.19.2 || >=22.16.0"
   },
   "browserslist": [
     "> 3% in JP",
@@ -57,11 +57,10 @@
     "@typescript-eslint/parser": "^8.0.1",
     "autoprefixer": "^10.4.20",
     "backstopjs": "^6.3.23",
-    "browser-sync": "^2.29.3",
+    "browser-sync": "^3.0.4",
     "chokidar": "^3.6.0",
     "clean-css": "^5.3.3",
     "cross-env": "^7.0.3",
-    "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "eslint": "^8.57.0",
@@ -99,5 +98,27 @@
     "postcss-html": "^1.7.0",
     "stylelint-order": "^6.0.4"
   },
-  "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228"
+  "pnpm": {
+    "overrides": {
+      "axios@>=0.8.1 <0.28.0": ">=0.28.0",
+      "micromatch@<4.0.8": ">=4.0.8",
+      "body-parser@<1.20.3": ">=1.20.3",
+      "rollup@>=3.0.0 <3.29.5": ">=3.29.5",
+      "send@<0.19.0": ">=0.19.0",
+      "serve-static@<1.16.0": ">=1.16.0",
+      "express@<4.20.0": ">=4.20.0",
+      "nanoid@<3.3.8": ">=3.3.8",
+      "path-to-regexp@<0.1.10": ">=0.1.10",
+      "axios@<0.30.0": ">=0.30.0",
+      "eazy-logger@<=4.0.1": ">=4.1.0",
+      "cookie@<0.7.0": ">=0.7.0",
+      "cross-spawn@<6.0.6": ">=6.0.6",
+      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
+      "tar-fs@>=3.0.0 <3.0.7": ">=3.0.7",
+      "tar-fs@>=3.0.0 <3.0.9": ">=3.0.9",
+      "path-to-regexp@<0.1.12": ">=0.1.12",
+      "brace-expansion@>=1.0.0 <=1.1.11": ">=1.1.12",
+      "brace-expansion@>=2.0.0 <=2.0.1": ">=2.0.2"
+    }
+  }
 }
