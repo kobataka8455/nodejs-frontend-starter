@@ -10,9 +10,9 @@ const getGitRemoteURL = (): string | null => {
   try {
     const output = execSync(gitRemoteCommand).toString().trim();
     return output;
-  } catch (error: any) {
-    // @ts-ignore - execSync error types are inconsistent
-    console.error("Failed to get Git remote URL:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Failed to get Git remote URL:", errorMessage);
     return null;
   }
 };
@@ -23,9 +23,9 @@ const getGitBranchName = (): string | null => {
     const output = execSync(gitBranchNamesCommand).toString().trim().split("/");
     const branchName = output[output.length - 1];
     return branchName === "main-wd" ? "main" : branchName;
-  } catch (error: any) {
-    // @ts-ignore - execSync error types are inconsistent
-    console.error("Failed to get Git branch name:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Failed to get Git branch name:", errorMessage);
     return null;
   }
 };

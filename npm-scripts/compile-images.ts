@@ -61,7 +61,6 @@ try {
   fs.accessSync(config.dir.src);
   // pngかsvgの対象ファイルが指定されているか、対象ファイルの指定がなければ実行
   if ((argTargetFile && isValidFile(argTargetFile)) || !argTargetFile) compressImages();
-} catch (error: any) {
-  // @ts-ignore - fs.accessSync error types are generic
+} catch (error: unknown) {
   console.log('\x1b[31;1mNo images directory\x1b[0m');
 }

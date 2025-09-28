@@ -44,9 +44,8 @@ const remove = async (type: string, filePath: string): Promise<void> => {
     } else if (stats.isFile()) {
       await fs.unlink(targetPath);
     }
-  } catch (error: any) {
-    // @ts-ignore - fs.stat error types are generic NodeJS.ErrnoException
-    if (error.code !== 'ENOENT') {
+  } catch (error: unknown) {
+    if (error instanceof Error && 'code' in error && error.code !== 'ENOENT') {
       throw error;
     }
   }
