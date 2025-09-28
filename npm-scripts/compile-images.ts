@@ -62,5 +62,5 @@ try {
   // pngかsvgの対象ファイルが指定されているか、対象ファイルの指定がなければ実行
   if ((argTargetFile && isValidFile(argTargetFile)) || !argTargetFile) compressImages();
 } catch (error: unknown) {
-  console.log('\x1b[31;1mNo images directory\x1b[0m');
+  console.log('\x1b[31;1mNo images directory\x1b[0m : ' + error);
 }

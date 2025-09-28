@@ -94,7 +94,7 @@ const generateFiles = async (): Promise<void> => {
     normalize: true,
   });
 
-  let fontData: FontData = {
+  const fontData: FontData = {
     svg: '',
     eot: Buffer.alloc(0),
     ttf: Buffer.alloc(0),
