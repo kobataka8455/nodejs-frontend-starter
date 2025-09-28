@@ -4,9 +4,13 @@ import { HTMLHint } from 'htmlhint';
 import { ESLint } from 'eslint';
 import stylelint from 'stylelint';
 import { execSync } from 'child_process';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
 const lintType: string | undefined = process.env.LINT;
 const targetFile: string | undefined = process.env.TARGET_FILE;
+const scriptsFolder: string = process.env.SCRIPTS_FOLDER || 'scripts';
 
 interface HTMLHintResult {
   line: number;
@@ -103,7 +107,7 @@ interface ESLintResult {
 // eslint
 const eslintFunc = async (): Promise<void> => {
   console.log(`Starting '\x1b[36mlint:${process.env.LINT}\x1b[0m'`);
-  const allJs: string[] = targetFile ? new Array(targetFile) : glob.sync('./src/scripts/**/*.{ts,js}', { ignore: '' });
+  const allJs: string[] = targetFile ? new Array(targetFile) : glob.sync(`./src/${scriptsFolder}/**/*.{ts,js}`, { ignore: '' });
   allJs.sort().forEach((jsFile: string) => {
     const eslintCli = new ESLint({ overrideConfigFile: '.eslintrc' });
     const report = eslintCli.lintFiles(jsFile);
@@ -121,7 +125,7 @@ const eslintFunc = async (): Promise<void> => {
 
   // format
   try {
-    execSync(`prettier --write "./src/scripts/**/*.{ts,js}"`);
+    execSync(`prettier --write "./src/${scriptsFolder}/**/*.{ts,js}"`);
   } catch (error) {
     console.error('Format error:', error);
   }

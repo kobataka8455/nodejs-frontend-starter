@@ -9,23 +9,24 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 // envから値を取得
 const isMinify: boolean = JSON.parse(process.env.MINIFY || 'false');
 const dist: string = process.env.DIST || 'dist';
+const scriptsFolder: string = process.env.SCRIPTS_FOLDER || 'scripts';
 const argTargetFile: string | undefined = process.env.TARGET_FILE;
 
 // 出力先のJSファイルを削除
 if (process.env.NODE_ENV !== 'production' && !argTargetFile) {
-  const jsFiles = glob.sync(`${dist}/scripts/**/*.js`);
+  const jsFiles = glob.sync(`${dist}/${scriptsFolder}/**/*.js`);
   jsFiles.forEach((file: string) => {
     fs.unlinkSync(file);
   });
 }
 
 // ビルド対象ファイルを取得
-const files: string[] = argTargetFile ? [argTargetFile] : glob.sync(`src/scripts/**/!(_)*.{ts,js}`);
+const files: string[] = argTargetFile ? [argTargetFile] : glob.sync(`src/${scriptsFolder}/**/!(_)*.{ts,js}`);
 
 // 各ファイルをビルド
 const buildFiles = async (): Promise<void> => {
   for (const file of files) {
-    const outputPath = file.replace('src/scripts', `${dist}/scripts`).replace(/\.ts$/, '.js');
+    const outputPath = file.replace(`src/${scriptsFolder}`, `${dist}/${scriptsFolder}`).replace(/\.ts$/, '.js');
     
     // 出力ディレクトリを作成
     const outputDir = path.dirname(outputPath);

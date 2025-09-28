@@ -10,13 +10,14 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 
 // envから値を取得
 const dist: string = process.env.DIST || 'dist';
+const imagesFolder: string = process.env.IMAGES_FOLDER || 'images';
 const argTargetFile: string | undefined = process.env.TARGET_FILE;
 
 // 設定
 const config = {
   dir: {
-    src: `src/images/`, // 画像ファイルのディレクトリ
-    dist: `${dist}/images/`, // 出力先のディレクトリ
+    src: `src/${imagesFolder}/`, // 画像ファイルのディレクトリ
+    dist: `${dist}/${imagesFolder}/`, // 出力先のディレクトリ
   },
   quality: {
     png: 256, // 0 or 256 = lossless, 1-255 = lossy

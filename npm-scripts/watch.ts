@@ -10,6 +10,8 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'productio
 const dist: string = process.env.DIST || 'dist';
 const ejsPath: string = process.env.EJS_PATH || 'src/ejs';
 const isHTMLDir: boolean = JSON.parse(process.env.IS_HTML_DIR || 'false'); // dist/配下にHTMLフォルダを作成するかどうか
+const scriptsFolder: string = process.env.SCRIPTS_FOLDER || 'scripts';
+const imagesFolder: string = process.env.IMAGES_FOLDER || 'images';
 
 // 監視対象のフォルダとファイルを指定
 const targets = 'src/**/*';
@@ -99,10 +101,10 @@ const main = (event: string, filePath: string): void => {
   } else if (filePath.includes('/ejs/')) {
     type = 'ejs';
     isAll = fileName.startsWith('_'); // partialファイル判定
-  } else if (filePath.includes('/scripts/')) {
+  } else if (filePath.includes(`/${scriptsFolder}/`)) {
     type = 'js';
     isAll = fileName.startsWith('_'); // partialファイル判定
-  } else if (filePath.includes('/images/')) {
+  } else if (filePath.includes(`/${imagesFolder}/`)) {
     type = 'image';
   } else if (filePath.includes('/icon-font/svg/')) {
     type = 'icon';
