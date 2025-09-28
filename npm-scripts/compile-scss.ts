@@ -6,12 +6,13 @@ import postcss from 'postcss';
 import autoprefixer from 'autoprefixer';
 import { ensureDirectoryExistence } from './create-directory.js';
 import dotenv from 'dotenv';
+
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
 // envから値を取得
-const isMinify = JSON.parse(process.env.MINIFY);
-const dist = process.env.DIST;
-const argTargetFile = process.env.TARGET_FILE;
+const isMinify: boolean = JSON.parse(process.env.MINIFY || 'false');
+const dist: string = process.env.DIST || 'dist';
+const argTargetFile: string | undefined = process.env.TARGET_FILE;
 
 // 設定
 const config = {
@@ -23,13 +24,13 @@ const config = {
 
 // 出力先のCSSファイルを削除
 if (process.env.NODE_ENV !== 'production' && !argTargetFile) {
-  glob.sync(`${config.dir.dist}/**/*.css`).forEach((file) => {
+  glob.sync(`${config.dir.dist}/**/*.css`).forEach((file: string) => {
     fs.unlinkSync(file);
   });
 }
 
 // SCSSファイルをコンパイルする関数
-const compileScss = (scssFilePath) => {
+const compileScss = (scssFilePath: string): string => {
   // CSSソースをresultに格納
   const result = sass.compile(scssFilePath, {
     style: isMinify ? 'compressed' : 'expanded',
@@ -40,8 +41,8 @@ const compileScss = (scssFilePath) => {
 };
 
 // SCSSファイルを取得してコンパイル実行からファイル書き出し
-const scssFiles = argTargetFile ? new Array(argTargetFile) : glob.sync(`${config.dir.scss}/**/!(_)*.scss`);
-scssFiles.forEach((file) => {
+const scssFiles: string[] = argTargetFile ? new Array(argTargetFile) : glob.sync(`${config.dir.scss}/**/!(_)*.scss`);
+scssFiles.forEach((file: string) => {
   const cssFilePath = file.replace(config.dir.scss, config.dir.dist).replace('.scss', '.css');
 
   ensureDirectoryExistence(path.dirname(cssFilePath));

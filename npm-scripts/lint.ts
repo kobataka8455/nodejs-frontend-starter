@@ -4,23 +4,35 @@ import { HTMLHint } from 'htmlhint';
 import { ESLint } from 'eslint';
 import stylelint from 'stylelint';
 import { execSync } from 'child_process';
-const lintType = process.env.LINT;
-const targetFile = process.env.TARGET_FILE;
+
+const lintType: string | undefined = process.env.LINT;
+const targetFile: string | undefined = process.env.TARGET_FILE;
+
+interface HTMLHintResult {
+  line: number;
+  col: number;
+  evidence: string;
+  type: string;
+  message: string;
+  rule: {
+    id: string;
+  };
+}
 
 // HTMLHint
-const HTMLHintFunc = async () => {
+const HTMLHintFunc = async (): Promise<void> => {
   console.log(`Starting '\x1b[36mlint:${lintType}\x1b[0m'`);
   const HTMLHintConfig = JSON.parse(fs.readFileSync('.htmlhintrc', 'utf8'));
   const allEjs = glob.sync('./src/ejs/**/*.ejs', { ignore: '' });
-  allEjs.sort().forEach((ejsFile) => {
+  allEjs.sort().forEach((ejsFile: string) => {
     const htmlContent = fs.readFileSync(ejsFile, 'utf8');
-    const results = HTMLHint.verify(htmlContent, HTMLHintConfig);
+    const results: HTMLHintResult[] = HTMLHint.verify(htmlContent, HTMLHintConfig);
     if (results.length > 0) {
       let message = '\n';
       message += `\x1b[4m${ejsFile}\x1b[0m\n`;
       message += `Found ${results.length} HTML syntax issues.\n`;
-      results.forEach((result) => {
-        const colorSet = (type) => {
+      results.forEach((result: HTMLHintResult) => {
+        const colorSet = (type: string): string => {
           switch (type) {
             case 'error':
               return '\x1b[31;1m';
@@ -39,25 +51,16 @@ const HTMLHintFunc = async () => {
   });
 
   // format
-  execSync(`js-beautify --config .ejsbrc.json -html "./src/ejs/**/*.ejs"`, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    if (stdout) {
-      console.error(stdout);
-      return;
-    }
-    if (stderr) {
-      console.error(stderr);
-      return;
-    }
-  });
+  try {
+    execSync(`js-beautify --config .ejsbrc.json -html "./src/ejs/**/*.ejs"`);
+  } catch (error) {
+    console.error('Format error:', error);
+  }
   console.log(`Finished '\x1b[36mlint:${lintType}\x1b[0m'`);
 };
 
 // Stylelint
-const StylelintFunc = async () => {
+const StylelintFunc = async (): Promise<void> => {
   console.log(`Starting '\x1b[36mlint:${lintType}\x1b[0m'`);
   const StylelintConfig = JSON.parse(fs.readFileSync('.stylelintrc', 'utf8'));
   stylelint
@@ -66,7 +69,7 @@ const StylelintFunc = async () => {
       files: ['./src/scss/**/*.scss'],
       customSyntax: 'postcss-scss',
       quiet: true,
-      formatters: 'string',
+      formatter: 'string',
       fix: true,
     })
     .then((data) => {
@@ -85,19 +88,31 @@ const StylelintFunc = async () => {
     });
 };
 
+interface ESLintResult {
+  errorCount: number;
+  warningCount: number;
+  filePath: string;
+  messages: Array<{
+    line: number;
+    column: number;
+    message: string;
+    ruleId: string | null;
+  }>;
+}
+
 // eslint
-const eslintFunc = async () => {
+const eslintFunc = async (): Promise<void> => {
   console.log(`Starting '\x1b[36mlint:${process.env.LINT}\x1b[0m'`);
-  const allJs = targetFile ? new Array(targetFile) : glob.sync('./src/scripts/**/*.{ts,js}', { ignore: '' });
-  allJs.sort().forEach((jsFile) => {
+  const allJs: string[] = targetFile ? new Array(targetFile) : glob.sync('./src/scripts/**/*.{ts,js}', { ignore: '' });
+  allJs.sort().forEach((jsFile: string) => {
     const eslintCli = new ESLint({ overrideConfigFile: '.eslintrc' });
     const report = eslintCli.lintFiles(jsFile);
 
-    report.then((result) => {
+    report.then((result: ESLintResult[]) => {
       if (result[0].errorCount || result[0].warningCount) {
         console.log(result[0].filePath);
         result[0].messages.forEach((message) => {
-          console.log(`\x1b[31;1m[L${message.line}:C${message.column}]: ${message.message} (${message.ruleId})\x1b[0m`);
+          console.log(`\x1b[31;1m[L${message.line}:C${message.column}]: ${message.message} (${message.ruleId || 'no-rule'})\x1b[0m`);
         });
         console.log(`\n\x1b[31;1m${result[0].errorCount} error, ${result[0].warningCount} warning\x1b[0m\n`);
       }
@@ -105,24 +120,15 @@ const eslintFunc = async () => {
   });
 
   // format
-  execSync(`prettier --write "./src/scripts/**/*.{ts,js}"`, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    if (stdout) {
-      console.error(stdout);
-      return;
-    }
-    if (stderr) {
-      console.error(stderr);
-      return;
-    }
-  });
+  try {
+    execSync(`prettier --write "./src/scripts/**/*.{ts,js}"`);
+  } catch (error) {
+    console.error('Format error:', error);
+  }
   console.log(`Finished '\x1b[36mlint:${process.env.LINT}\x1b[0m'`);
 };
 
-const main = async () => {
+const main = async (): Promise<void> => {
   if (lintType === 'ejs') await HTMLHintFunc();
   if (lintType === 'scss') await StylelintFunc();
   if (lintType === 'js') await eslintFunc();

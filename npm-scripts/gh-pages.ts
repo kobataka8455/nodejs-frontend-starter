@@ -6,30 +6,32 @@ const gitBranchNamesCommand = "git rev-parse --abbrev-ref HEAD";
 const targetDirectory = "dist";
 
 // GitのリモートURLを取得する関数
-const getGitRemoteURL = () => {
+const getGitRemoteURL = (): string | null => {
   try {
     const output = execSync(gitRemoteCommand).toString().trim();
     return output;
-  } catch (error) {
+  } catch (error: any) {
+    // @ts-ignore - execSync error types are inconsistent
     console.error("Failed to get Git remote URL:", error.message);
     return null;
   }
 };
 
 // Gitのブランチ名を取得する関数
-const getGitBranchName = () => {
+const getGitBranchName = (): string | null => {
   try {
     const output = execSync(gitBranchNamesCommand).toString().trim().split("/");
     const branchName = output[output.length - 1];
     return branchName === "main-wd" ? "main" : branchName;
-  } catch (error) {
+  } catch (error: any) {
+    // @ts-ignore - execSync error types are inconsistent
     console.error("Failed to get Git branch name:", error.message);
     return null;
   }
 };
 
 // SSHのアドレスをHTTPSのアドレスに変換する関数
-const convertSSHtoHTTPS = (url) => {
+const convertSSHtoHTTPS = (url: string): string => {
   const regex = /^git@([^:/]+)[:/](.+)\.git$/;
   const matches = url.match(regex);
   if (!matches) {
@@ -45,7 +47,7 @@ const convertSSHtoHTTPS = (url) => {
 };
 
 // ドメインの先頭に「pages.」を追加する関数
-const addPrefixToDomain = (url) => {
+const addPrefixToDomain = (url: string): string => {
   const matches = url.match(/^(https?:\/\/)([^/]+)/);
   if (matches) {
     const protocol = matches[1];
@@ -56,11 +58,18 @@ const addPrefixToDomain = (url) => {
   return url;
 };
 
-const main = async () => {
+const main = async (): Promise<void> => {
   const remoteURL = await getGitRemoteURL();
   const branchName = await getGitBranchName();
+  
+  if (!remoteURL || !branchName) {
+    console.error("Failed to get required git information");
+    return;
+  }
+  
   const httpsURL = await convertSSHtoHTTPS(remoteURL);
   const previewDomain = await addPrefixToDomain(httpsURL);
+  
   ghPages.publish(targetDirectory,
     {
       dest: `preview/${branchName}`,

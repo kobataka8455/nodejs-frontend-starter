@@ -3,18 +3,19 @@ import fs from 'fs/promises';
 import chokidar from 'chokidar';
 import { exec } from 'child_process';
 import dotenv from 'dotenv';
+
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
 // envから値を取得
-const dist = process.env.DIST;
-const ejsPath = process.env.EJS_PATH;
-const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
+const dist: string = process.env.DIST || 'dist';
+const ejsPath: string = process.env.EJS_PATH || 'src/ejs';
+const isHTMLDir: boolean = JSON.parse(process.env.IS_HTML_DIR || 'false'); // dist/配下にHTMLフォルダを作成するかどうか
 
 // 監視対象のフォルダとファイルを指定
 const targets = 'src/**/*';
 
 // 常時コンパイルさせたいejsファイルの指定 ex.) ['index.ejs', 'hoge/fuge.ejs']
-const everCompilesEjs = [];
+const everCompilesEjs: string[] = [];
 
 // chokidarの設定
 const watcher = chokidar.watch(targets, {
@@ -22,7 +23,7 @@ const watcher = chokidar.watch(targets, {
   persistent: true,
 });
 
-const remove = async (type, filePath) => {
+const remove = async (type: string, filePath: string): Promise<void> => {
   let targetPath = filePath.replace('src', dist);
 
   // distの拡張子に変換
@@ -41,16 +42,17 @@ const remove = async (type, filePath) => {
     } else if (stats.isFile()) {
       await fs.unlink(targetPath);
     }
-  } catch (error) {
+  } catch (error: any) {
+    // @ts-ignore - fs.stat error types are generic NodeJS.ErrnoException
     if (error.code !== 'ENOENT') {
       throw error;
     }
   }
 };
 
-const action = (type, filePath) => {
+const action = (type: string, filePath?: string): void => {
   // filePathがある場合はファイル単体で起動
-  exec(`${filePath ? `cross-env TARGET_FILE="${filePath}" ` : ''}npm run build:${type} && npm run lint:${type}`, (err, stdout, stderr) => {
+  exec(`${filePath ? `cross-env TARGET_FILE="${filePath}" ` : ''}npm run build:${type} && npm run lint:${type}`, (err: Error | null, stdout: string, stderr: string) => {
     if (err) {
       console.error(err);
       return;
@@ -67,8 +69,8 @@ const action = (type, filePath) => {
   });
 };
 
-const everCompile = () => {
-  everCompilesEjs.forEach((file) => {
+const everCompile = (): void => {
+  everCompilesEjs.forEach((file: string) => {
     if (file.indexOf('.ejs') > -1) {
       action('ejs', path.join(ejsPath, file));
     }
@@ -76,10 +78,10 @@ const everCompile = () => {
 };
 
 // 引数で受け取ったeventに応じて処理を分ける
-const main = (event, filePath) => {
+const main = (event: string, filePath: string): void => {
   // ターミナルのカラー設定
   const color = event === 'add' ? '\x1b[32;1m' : event === 'change' ? '\x1b[36;1m' : '\x1b[31;1m';
-  let type = filePath.split('.').pop();
+  let type: string = filePath.split('.').pop() || '';
 
   /*
    ** partialファイルの場合は
@@ -126,14 +128,14 @@ const main = (event, filePath) => {
 };
 
 watcher.on('ready', () => {
-  watcher.on('add', (filePath) => main('add', filePath));
+  watcher.on('add', (filePath: string) => main('add', filePath));
 });
 
 // cmd + s 等を連打すると、changeイベントが複数回発火してしまうので、タイマーで制御
-let timer;
-watcher.on('change', (filePath) => {
-  clearTimeout(timer);
+let timer: NodeJS.Timeout | undefined;
+watcher.on('change', (filePath: string) => {
+  if (timer) clearTimeout(timer);
   timer = setTimeout(() => main('change', filePath), 500);
 });
-watcher.on('unlink', (filePath) => main('unlink', filePath));
-watcher.on('unlinkDir', (filePath) => main('unlinkDir', filePath));
+watcher.on('unlink', (filePath: string) => main('unlink', filePath));
+watcher.on('unlinkDir', (filePath: string) => main('unlinkDir', filePath));

@@ -4,11 +4,12 @@ import http from 'http';
 import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
+
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
 // envから値を取得
-const dist = process.env.DIST;
-const isHTMLDir = JSON.parse(process.env.IS_HTML_DIR); // dist/配下にHTMLフォルダを作成するかどうか
+const dist: string = process.env.DIST || 'dist';
+const isHTMLDir: boolean = JSON.parse(process.env.IS_HTML_DIR || 'false'); // dist/配下にHTMLフォルダを作成するかどうか
 
 // 設定
 const config = {
@@ -17,7 +18,7 @@ const config = {
 };
 
 // コンテンツタイプの取得
-const getContentType = (filePath) => {
+const getContentType = (filePath: string): string => {
   const extname = path.extname(filePath);
   switch (extname) {
     case '.html':
@@ -42,8 +43,8 @@ const getContentType = (filePath) => {
 };
 
 // サーバーの設定
-const server = http.createServer((req, res) => {
-  const filePath = path.join(dist, req.url);
+const server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
+  const filePath = path.join(dist, req.url || '');
 
   fs.stat(filePath, (err, stats) => {
     if (err) {
@@ -56,17 +57,17 @@ const server = http.createServer((req, res) => {
       }
     } else {
       if (stats.isDirectory()) {
-        fs.readdir(filePath, (err, files) => {
+        fs.readdir(filePath, (err: NodeJS.ErrnoException | null, files: string[]) => {
           if (err) {
             res.statusCode = 500;
             res.end(`Internal server error: ${err.code}`);
           } else {
-            const url = req.url.endsWith('/') ? req.url : `${req.url}/`;
+            const url = req.url?.endsWith('/') ? req.url : `${req.url}/`;
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.write(`<body>`);
             res.write(`<h1>Folder: ${req.url}</h1>`);
             res.write('<ul>');
-            files.forEach((file) => {
+            files.forEach((file: string) => {
               res.write(`<li><a href="${url}${file}">${file}</a></li>`);
             });
             res.write('</ul>');
@@ -80,10 +81,10 @@ const server = http.createServer((req, res) => {
           res.setHeader('Content-Type', getContentType(filePath));
           stream.pipe(res);
         });
-        stream.on('error', (err) => {
+        stream.on('error', (err: NodeJS.ErrnoException) => {
           res.setHeader('Content-Type', 'text/html');
           res.statusCode = 500;
-          res.end(`Internal server error: ${err.code}`);
+          res.end(`Internal server error: ${err.code || 'Unknown'}`);
         });
       }
     }
@@ -91,7 +92,7 @@ const server = http.createServer((req, res) => {
 });
 
 // ポートが既に使われている場合は、他のポートを自動で設定
-server.on('error', (err) => {
+server.on('error', (err: NodeJS.ErrnoException) => {
   if (err.code === 'EADDRINUSE') {
     console.log(`Port ${config.bsPort} is already in use. Trying another port...`);
     config.bsPort++;

@@ -9,17 +9,43 @@ import ttf2woff from 'ttf2woff';
 import ttf2woff2 from 'ttf2woff2';
 import nunjucks from 'nunjucks';
 import crypto from 'crypto';
-import prettier from 'prettier';
+import * as prettier from 'prettier';
 import { ensureDirectoryExistence } from './create-directory.js';
 import dotenv from 'dotenv';
+
 dotenv.config({ path: `.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}` });
 
 // envから値を取得
-const dist = process.env.DIST;
+const dist: string = process.env.DIST || 'dist';
 
 // ファイル読み込み
 const normalizeCss = fs.readFileSync('./node_modules/normalize.css/normalize.css').toString();
 const prettierConfig = JSON.parse(fs.readFileSync('./.prettierrc', 'utf8'));
+
+interface FontData {
+  svg: string;
+  eot: Buffer | string;
+  ttf: Buffer | string;
+  woff: Buffer | string;
+  woff2: Buffer | string;
+}
+
+interface Glyph {
+  metadata: {
+    name: string;
+    unicode: string[];
+  };
+}
+
+interface CreateFileOptions {
+  hash: string;
+  fontName: string;
+  fontPath: string;
+  className: string;
+  glyphs: Glyph[];
+  formats: string[];
+  resetCSS: string;
+}
 
 // 設定
 const config = {
@@ -27,7 +53,7 @@ const config = {
   fontClassName: 'my-icon',
   cssFontPath: '../icon-font/', // cssフォルダからフォントフォルダまでの相対パス
   startUnicode: 0xf000, // nullにした場合は0xf000から始まる
-  formats: ['ttf', 'eot', 'woff', 'woff2'], // 生成するフォントファイルの形式['ttf', 'eot', 'woff', 'woff2']
+  formats: ['ttf', 'eot', 'woff', 'woff2'] as string[], // 生成するフォントファイルの形式['ttf', 'eot', 'woff', 'woff2']
   template: {
     scss: `src/icon-font/templates/_icon-scss.njk`,
     html: `src/icon-font/templates/_icon-html.njk`,
@@ -46,9 +72,9 @@ const config = {
 };
 
 // SVGファイルのパスを取得する関数
-const getSvgFiles = () => {
+const getSvgFiles = (): string[] => {
   const files = glob.sync(`${config.dir.svg}/**/*.svg`);
-  return _.sortBy(files, (file) => {
+  return _.sortBy(files, (file: string) => {
     // ファイル名の先頭にUnicodeが付いている場合はUnicodeを返す
     const match = file.match(/\/u([a-fA-F0-9]{4})-/);
     if (match) {
@@ -60,7 +86,7 @@ const getSvgFiles = () => {
 };
 
 // ファイルを生成する関数
-const generateFiles = async () => {
+const generateFiles = async (): Promise<void> => {
   const env = nunjucks.configure({ autoescape: false });
   const fontStream = new svgicons2svgfont({
     fontName: config.fontName,
@@ -68,16 +94,16 @@ const generateFiles = async () => {
     normalize: true,
   });
 
-  let fontData = {
+  let fontData: FontData = {
     svg: '',
-    eot: '',
-    ttf: '',
-    woff: '',
-    woff2: '',
+    eot: Buffer.alloc(0),
+    ttf: Buffer.alloc(0),
+    woff: Buffer.alloc(0),
+    woff2: Buffer.alloc(0),
   };
   let lastUnicode = config.startUnicode || 0xf000;
 
-  fontStream.on('data', (data) => {
+  fontStream.on('data', (data: Buffer) => {
     fontData.svg += data;
   });
   fontStream.on('end', () => {
@@ -94,12 +120,12 @@ const generateFiles = async () => {
     // TTFファイルからWOFF2ファイルを生成
     if (config.formats.includes('woff2')) fontData.woff2 = Buffer.from(ttf2woff2(ttf.buffer));
 
-    const createFileOptions = {
+    const createFileOptions: CreateFileOptions = {
       hash: config.addHashInFontUrl ? crypto.createHash('md5').update(fontData.svg).digest('hex') : '',
       fontName: config.fontName,
       fontPath: config.cssFontPath,
       className: config.fontClassName,
-      glyphs: fontStream.glyphs,
+      glyphs: (fontStream as any).glyphs,
       formats: config.formats,
       resetCSS: normalizeCss,
     };
@@ -123,7 +149,7 @@ const generateFiles = async () => {
   });
 
   // SVGファイルをストリームに流し込む
-  getSvgFiles().forEach((file, idx) => {
+  getSvgFiles().forEach((file: string, idx: number) => {
     const glyph = fs.createReadStream(file);
     const basename = path.basename(file);
     const matches = basename.match(/^(?:((?:u[0-9a-f]{4,6},?)+)-)?(.+)\.svg$/i);
@@ -132,14 +158,12 @@ const generateFiles = async () => {
     } else {
       lastUnicode = idx === 0 ? lastUnicode : lastUnicode + 1;
       if (config.prependUnicode) {
-        const outputPath = path.join(config.dir.svg, `u${String.fromCharCode(lastUnicode).codePointAt(0).toString(16).toUpperCase()}-${basename}`);
-        fs.renameSync(file, outputPath, (err) => {
-          console.log(err);
-        });
-        glyph.path = outputPath;
+        const outputPath = path.join(config.dir.svg, `u${String.fromCharCode(lastUnicode).codePointAt(0)!.toString(16).toUpperCase()}-${basename}`);
+        fs.renameSync(file, outputPath);
+        (glyph as any).path = outputPath;
       }
     }
-    glyph.metadata = {
+    (glyph as any).metadata = {
       name: basename
         .replace(/(u[\dA-F]{4}-)/g, '')
         .replace(/\.svg$/i, '')
